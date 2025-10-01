@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 업무혁신크루 2회차 핵심 요약</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #50E3C2;
+            --text-color: #333;
+            --heading-color: #2C3E50;
+            --background-color: #F8F9FA;
+            --card-background: #FFFFFF;
+            --border-color: #E0E0E0;
+            --highlight-bg: #EAF4FB;
+            --highlight-border: #BBDEFB;
+            --quote-color: #6C7A89;
+            --note-bg: #D9EDF7;
+            --note-border: #A7D9EE;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: var(--card-background);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1, h2, h3 {
+            color: var(--heading-color);
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.8em;
+            color: var(--primary-color);
+            padding-bottom: 20px;
+            border-bottom: 4px solid var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: var(--primary-color);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h3 {
+            font-size: 1.5em;
+            color: var(--heading-color);
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        strong {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+            padding-left: 0;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 15px;
+        }
+        ul li::before {
+            content: '•';
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+        }
+
+        ol li {
+            margin-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden; /* Ensure border-radius applies to table */
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: var(--card-background);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.95em;
+        }
+
+        td {
+            background-color: var(--card-background);
+        }
+        td strong {
+            color: var(--heading-color);
+        }
+
+        .highlight {
+            background-color: var(--highlight-bg);
+            padding: 20px;
+            border-left: 6px solid var(--highlight-border);
+            margin-top: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+
+        .quote {
+            font-style: italic;
+            color: var(--quote-color);
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 4px solid var(--secondary-color);
+            font-size: 1.1em;
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+
+        .example-code {
+            background-color: #f0f4f7;
+            border: 1px solid #ced4da;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Roboto Mono', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .note {
+            background-color: var(--note-bg);
+            padding: 15px 20px;
+            border-left: 6px solid var(--note-border);
+            margin-top: 30px;
+            border-radius: 8px;
+            color: var(--heading-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .note strong {
+            color: var(--heading-color);
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+        .note::before {
+            content: '💡';
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI 업무혁신크루 2회차 핵심 요약</h1>
+        <p class="quote">"AI를 단순한 검색 도구가 아닌, 나의 업무를 혁신하는 파트너로 만드는 방법"</p>
+
+        <p>AI 업무혁신크루 2회차에서는 텍스트 기반 자료를 심층적으로 분석하고 멀티미디어 콘텐츠로 재창조하는 능력과, 텍스트를 고품질 이미지로 시각화하는 생성형 AI 활용법을 집중적으로 학습했습니다. 또한 노트북 LM의 구체적인 활용 사례를 통해 AI의 실무 적용 가능성을 확인했습니다.</p>
+
+        <h2>1. 나만의 AI 연구소: 노트북LM (NotebookLM) 완벽 활용법</h2>
+        <p>노트북LM은 내가 올린 자료(PDF, DOC, 웹사이트 등)만을 학습하여 정확하고 깊이 있는 답변을 제공하는 맞춤형 AI 비서입니다.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>기능 및 장점</th>
+                    <th>프롬프트 활용 전략</th>
+                    <th>오버뷰 (Overview) 기능</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <strong>자료 기반의 정확한 답변:</strong> 인터넷 검색이 아닌, 업로드된 소스 내에서만 정보를 찾아 환각(Hallucination) 현상이 거의 없습니다.
+                    </td>
+                    <td>
+                        "핵심 질문 5가지 생성해줘": 방대한 자료의 핵심을 파악하는 5가지 질문과 답변을 생성하여 내용을 빠르게 요약하고 이해도를 높입니다.
+                    </td>
+                    <td>
+                        "이 자료로 5분짜리 오디오 브리핑 만들어줘": 업로드한 자료 전체를 요약하여 오디오 또는 비디오 형태의 브리핑으로 자동 생성합니다. 이동 중이거나 다른 업무를 하면서도 핵심 내용을 파악할 수 있습니다.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>시간 효율성 극대화:</strong> 긴 보고서, 논문, 회의록 등을 빠르게 요약하고 핵심 내용을 추출하여 정보 처리 시간을 획기적으로 단축합니다.
+                    </td>
+                    <td>
+                        "가장 흥미로운 부분 찾아줘": 자료 내에서 가장 놀랍거나 예상치 못한, 혹은 중요한 인사이트를 담고 있는 부분을 찾아 하이라이트합니다.
+                    </td>
+                    <td>
+                        <strong>시각적·청각적 자료 변환:</strong> 텍스트 자료를 팟캐스트 형식의 대화나 시각 자료가 포함된 영상으로 변환하여, 다양한 방식으로 정보를 소비하고 공유할 수 있게 돕습니다.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>다양한 포맷 지원:</strong> PDF, Google Docs, 웹 URL, 텍스트 파일, 이미지, YouTube 영상 등 다양한 형태의 자료를 소스로 활용할 수 있습니다.
+                    </td>
+                    <td>
+                        "퀴즈쇼 형식으로 질문 만들어줘": 학습한 내용을 재미있게 복습하고, 팀원들과 공유하며 지식을 테스트하는 용도로 활용할 수 있습니다.
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>강력한 개인정보 보호:</strong> 사용자가 업로드한 자료는 AI 모델 학습에 사용되지 않아 민감한 정보도 안심하고 처리할 수 있습니다.
+                    </td>
+                    <td>
+                        "타임라인으로 정리해줘": 사건의 순서나 프로젝트 진행 과정을 시간 순서대로 명확하게 재구성하여 보여줍니다.
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2. AI 이미지 생성 프롬프트 전략</h2>
+        <p>AI 이미지 생성의 핵심은 <strong>'무엇을(What)'</strong> 그릴지와 <strong>'어떻게(How)'</strong> 그릴지를 명확히 분리하여 AI에 지시하는 것입니다. 모델별 특성을 이해하고 최적의 프롬프트를 설계하는 방법을 알아봅니다.</p>
+
+        <h3>나노바나나 (NanoBanana) 설명</h3>
+        <ul>
+            <li><strong>정체성 및 모델명:</strong> 나노바나나는 Google DeepMind에서 2025년 8월에 출시한 최신 AI 이미지 생성 및 편집 모델인 <strong>Gemini 2.5 Flash Image</strong>의 코드명입니다. 이 모델은 익명 테스트 플랫폼인 LMArena에서 최고 점수를 기록했으며, 현재 세계 최고 성능의 이미지 편집 모델로 평가받고 있습니다.</li>
+            <li>나노바나나의 핵심 정체성은 <strong>민첩하고 정교한 편집기</strong>로서의 역할에 있습니다.</li>
+        </ul>
+
+        <h3>핵심 원리: 내용(What)과 방식(How)의 분리</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>구분</th>
+                    <th>역할 및 내용</th>
+                    <th>예시</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>텍스트 프롬프트 (What)</strong></td>
+                    <td>시각적 요소: 그려야 할 대상, 구도, 화풍, 분위기 등 내용에 집중합니다.</td>
+                    <td>"A photorealistic portrait of an an old Japanese potter, cinematic lighting."</td>
+                </tr>
+                <tr>
+                    <td><strong>시스템 명령어 (How)</strong></td>
+                    <td>기술적 설정: 이미지 생성 방식을 제어하는 파라미터. (Seed, Sampler, Steps 등)</td>
+                    <td>JSON: {"seed": 12345, "sampler": "DPM++"} / Midjourney: --seed 12345</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="highlight">
+            <p><strong>결론:</strong> 기술적 용어(seed, sampler 등)를 텍스트 프롬프트에 섞어 쓰면 AI가 이를 그림 내용으로 오인할 수 있습니다. '내용'과 '방식'은 반드시 분리해서 전달해야 합니다.</p>
+        </div>
+
+        <h3>AI 모델별 제어 방식 및 프롬프트 전략</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>모델</th>
+                    <th>제어 철학</th>
+                    <th>프롬프트 전략</th>
+                    <th>이상적인 사용자</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>나노바나나 (Stable Diffusion)</strong></td>
+                    <td>엔지니어링 (Engineering)</td>
+                    <td>상세한 텍스트 프롬프트와 함께 JSON 또는 UI를 통해 Seed, Steps, Sampler 등 모든 기술 파라미터를 직접 제어합니다.</td>
+                    <td>전문가, 개발자 (정교한 제어 및 완벽한 재현성 필요)</td>
+                </tr>
+                <tr>
+                    <td><strong>GPT-5 / DALL-E 3</strong></td>
+                    <td>대화형 (Conversational)</td>
+                    <td>자연어 대화를 통해 "유화의 거친 질감이 느껴지게 해줘" 와 같이 서술적으로 요청합니다. ChatGPT가 의도를 파악해 프롬프트를 최적화합니다.</td>
+                    <td>초보자, 일반 사용자 (쉽고 창의적인 아이디어 구현)</td>
+                </tr>
+                <tr>
+                    <td><strong>미드저니 (Midjourney)</strong></td>
+                    <td>파라미터 (Parameter)</td>
+                    <td>키워드 기반 프롬프트 뒤에 <code>--ar 16:9</code>, <code>--seed 12345</code> 와 같이 더블 하이픈(--)을 이용한 텍스트 명령어를 추가합니다.</td>
+                    <td>아티스트, 디자이너 (직관적이고 빠른 스타일 제어)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>3. AI 실무 적용: 세일즈 성공 전략 수립 (Advanced)</h2>
+        <p>"AI에게 '분석 방법'을 물어 깊이 있는 인사이트 얻기"</p>
+        <p>세일즈 성공 상담 녹취를 통해 인사이트있는 성공전략을 찾아냅니다.</p>
+
+        <h3>활용예시:</h3>
+        <ol>
+            <li><strong>데이터 준비:</strong> 고객과의 전화 또는 화상 상담 녹취 파일(음성 또는 텍스트)을 준비합니다.</li>
+            <li><strong>노트북LM에 업로드:</strong> 다수의 성공 상담 사례 녹취록 스크립트를 노트북LM에 소스로 업로드합니다.</li>
+            <li><strong>AI에게 '분석 질문' 생성 요청 (핵심 단계):</strong> 내가 직접 분석 질문을 만드는 대신, AI에게 데이터에 기반한 최적의 분석 질문을 만들어달라고 요청합니다.
+                <div class="quote">
+                    (실제 질문)<br>
+                    "변환이 모두 끝난 txt파일을 모아놨어요. 이제 어떤 분석을 해야 하는지 다시 질문을 해주세요."
+                </div>
+            </li>
+            <li><strong>AI가 아래와 같은 질문 생성:</strong></li>
+        </ol>
+
+        <div class="highlight">
+            <h3>AI가 생성한 핵심 질문 리스트 (예시)</h3>
+            <h4>1단계: 전체적인 성공 패턴 파악 (숲 보기)</h4>
+            <ul>
+                <li>"업로드된 스크립트 전체에서 공통적으로 나타나는 상담의 흐름(오프닝→클로징)을 5단계로 요약하고, 각 단계별 핵심 특징을 설명해 줘."</li>
+                <li>"고객의 마음을 연 성공적인 오프닝 멘트의 유형 3가지를 실제 예시와 함께 보여줘."</li>
+                <li>"고객이 제품 교체를 최종 결심하게 된 '결정적인 순간(Turning Point)'의 가장 강력한 상담사 발언이나 제안은 무엇이었는지 분석해 줘."</li>
+            </ul>
+
+            <h4>2단계: 고객 행동 및 심리 분석 (고객 이해하기)</h4>
+            <ul>
+                <li>"고객들이 기존 제품에 대해 가장 자주 언급한 불만사항 키워드 5가지는 무엇이야?"</li>
+                <li>"새 제품 제안 시, 고객들이 공통적으로 던진 핵심 질문들을 유형별로 분류해서 보여줘."</li>
+                <li>"고객이 교체를 망설이는 '저항 신호'(가격, 변화의 귀찮음 등)가 나타난 대화 패턴을 찾아줘."</li>
+            </ul>
+
+            <h4>3단계: 우수 상담사 스킬 분석 (핵심 전략 도출)</h4>
+            <ul>
+                <li>"고객의 저항에 '공감 화법'을 사용해 부정적 감정을 긍정적으로 전환시킨 가장 효과적인 실제 사례 3가지를 뽑아줘."</li>
+                <li>"제품의 장점을 고객의 이전 불만과 연결하여 '맞춤형 가치'로 제안한 화법의 최고 예시를 찾아줘."</li>
+                <li>"고객의 가격 저항을 성공적으로 극복한 답변 전략(장기적 가치, 할인 혜택 등)을 실제 대화 내용과 함께 분석해 줘."</li>
+            </ul>
+        </div>
+
+        <h3>기대 효과:</h3>
+        <ul>
+            <li><strong>인간의 편향을 넘어선 분석:</strong> 사람이 생각하지 못한 새로운 관점의 질문을 통해 데이터에 숨겨진 깊이 있는 인사이트를 발견할 수 있습니다.</li>
+            <li><strong>데이터 기반 교육 내재화:</strong> 분석 결과를 바탕으로 실전적인 교육 매뉴얼과 코칭 시나리오를 제작하여 팀 전체의 역량을 상향 평준화합니다.</li>
+        </ul>
+
+        <div class="note">
+            <strong>추가 코멘트:</strong> 향후 노트북LM의 오버뷰 기능과 AI 이미지 생성 기능을 조합하여 더욱 풍부하고 시각적인 교육 자료 생성이 가능할 것으로 기대됩니다.
+        </div>
+    </div>
+</body>
+</html>
