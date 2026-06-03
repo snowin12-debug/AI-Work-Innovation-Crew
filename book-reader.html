@@ -166,13 +166,13 @@
         <video id="video" autoplay playsinline></video>
         <div class="camera-placeholder" id="camera-placeholder">
           <span class="big-icon">📷</span>
-          <span>카메라를 시작하려면<br/>아래 버튼을 누르세요</span>
+          <span>카메라 시작 중...</span>
         </div>
       </div>
       <canvas id="canvas"></canvas>
       <div id="preview-container"><img id="preview-img" alt="촬영된 사진" /></div>
       <div class="cam-controls">
-        <button class="btn btn-blue btn-sm" id="start-cam-btn" onclick="startCamera()">📷 카메라 시작</button>
+        <button class="btn btn-blue btn-sm" id="start-cam-btn" onclick="startCamera()" style="display:none">📷 카메라 다시 시작</button>
         <button class="btn btn-primary btn-sm" id="capture-btn" onclick="capturePhoto()" disabled>📸 촬영</button>
         <button class="btn btn-outline btn-sm" id="retake-btn" onclick="retakePhoto()" style="display:none">🔄 다시 찍기</button>
       </div>
@@ -253,6 +253,7 @@
     const saved = localStorage.getItem('gemini_api_key');
     if (saved) document.getElementById('api-key-input').value = saved;
     checkTTSSupport();
+    startCamera();
   });
 
   function checkTTSSupport() {
@@ -270,10 +271,10 @@
       const video = document.getElementById('video');
       video.srcObject = stream; video.style.display = 'block';
       document.getElementById('camera-placeholder').style.display = 'none';
-      document.getElementById('start-cam-btn').disabled = true;
       document.getElementById('capture-btn').disabled = false;
     } catch (e) {
-      showError('카메라를 사용할 수 없어요. 아래 사진 파일 선택을 이용해 주세요. (' + e.message + ')');
+      document.getElementById('camera-placeholder').innerHTML = '<span class="big-icon">📷</span><span>카메라를 사용할 수 없어요<br/>아래에서 사진을 불러오세요</span>';
+      document.getElementById('start-cam-btn').style.display = 'inline-flex';
     }
   }
 
@@ -446,8 +447,7 @@
     document.getElementById('retake-btn').style.display = 'none';
     document.getElementById('file-input').value = '';
     hideError();
-    if (stream) { document.getElementById('capture-btn').disabled = false; document.getElementById('start-cam-btn').disabled = true; }
-    else { document.getElementById('capture-btn').disabled = true; document.getElementById('start-cam-btn').disabled = false; }
+    startCamera();
   }
 
   function showError(msg) { const box = document.getElementById('error-box'); box.textContent = '⚠️ ' + msg; box.classList.add('show'); }
