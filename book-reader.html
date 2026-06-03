@@ -2,458 +2,694 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📖 책 읽어주기</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BookReader" />
+  <title>📚 BookReader</title>
   <style>
-    :root {
-      --bg: #fff8e7;
-      --card: #ffffff;
-      --primary: #ff7043;
-      --primary-dark: #e64a19;
-      --green: #43a047;
-      --green-dark: #2e7d32;
-      --blue: #1e88e5;
-      --blue-dark: #1565c0;
-      --yellow: #ffd600;
-      --text: #333;
-      --muted: #888;
-      --radius: 20px;
-      --shadow: 0 8px 32px rgba(0,0,0,0.12);
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #FF8C42;
+      --orange-light: #FFB380;
+      --cream: #FFF8F0;
+      --dark: #2C2C2C;
+      --gray: #888;
+    }
 
     body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: var(--bg);
-      min-height: 100vh;
-      color: var(--text);
+      font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif;
+      background: #000;
+      color: var(--dark);
+      height: 100dvh;
+      overflow: hidden;
     }
 
-    header {
-      background: var(--primary);
-      color: white;
-      text-align: center;
-      padding: 18px 16px 14px;
+    /* ── SCREENS ── */
+    .screen { display: none; width: 100%; height: 100dvh; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* ── ONBOARDING ── */
+    #screen-onboarding {
+      background: var(--cream);
+      align-items: center;
+      justify-content: center;
+      padding: 40px 28px;
+      gap: 0;
+    }
+    .onboard-emoji { font-size: 80px; margin-bottom: 24px; }
+    .onboard-title { font-size: 26px; font-weight: 700; text-align: center; line-height: 1.4; margin-bottom: 12px; }
+    .onboard-desc { font-size: 16px; color: var(--gray); text-align: center; line-height: 1.7; margin-bottom: 40px; }
+    .onboard-label { align-self: flex-start; font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
+    .onboard-input {
+      width: 100%; padding: 14px 16px; font-size: 15px;
+      border: 1.5px solid #ddd; border-radius: 12px;
+      background: #fff; outline: none; margin-bottom: 10px;
+      -webkit-appearance: none;
+    }
+    .onboard-input:focus { border-color: var(--orange); }
+    .onboard-hint { font-size: 12px; color: var(--gray); margin-bottom: 32px; line-height: 1.5; }
+    .onboard-hint a { color: var(--orange); }
+    .btn-primary {
+      width: 100%; height: 60px; border: none; border-radius: 30px;
+      background: linear-gradient(135deg, var(--orange), #FF6B1A);
+      color: #fff; font-size: 18px; font-weight: 700;
+      cursor: pointer; transition: opacity .2s;
+      box-shadow: 0 4px 20px rgba(255,140,66,.4);
+    }
+    .btn-primary:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+    .btn-primary:active { opacity: .85; }
+
+    /* ── CAMERA ── */
+    #screen-camera {
       position: relative;
-      box-shadow: 0 4px 12px rgba(255,112,67,0.4);
+      background: #000;
     }
-    header h1 { font-size: 1.8em; font-weight: 900; letter-spacing: -0.5px; }
-    header p { font-size: 0.9em; opacity: 0.9; margin-top: 4px; }
-    .settings-btn {
-      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-      background: rgba(255,255,255,0.25); border: none; border-radius: 50%;
-      width: 42px; height: 42px; cursor: pointer; font-size: 1.3em; color: white;
-      display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+    #video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
     }
-    .settings-btn:hover { background: rgba(255,255,255,0.4); }
-
-    .settings-panel {
-      background: #fff3e0; border-bottom: 2px dashed #ffcc80; padding: 16px;
-      display: none; animation: slideDown 0.2s ease;
+    .camera-overlay {
+      position: absolute; inset: 0;
+      pointer-events: none;
     }
-    .settings-panel.open { display: block; }
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* dark surround */
+    .guide-mask {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.45);
+      mask-image: url(#guide-mask-svg);
+      -webkit-mask-image: url(#guide-mask-svg);
     }
-    .settings-panel label { font-size: 0.85em; font-weight: 700; color: #e65100; display: block; margin-bottom: 6px; }
-    .settings-panel input {
-      width: 100%; padding: 10px 14px; border: 2px solid #ffcc80; border-radius: 10px;
-      font-size: 0.95em; font-family: monospace; background: white; outline: none; transition: border-color 0.2s;
+    .guide-box {
+      position: absolute;
+      left: 5%; right: 5%;
+      top: 15%; height: 55%;
+      border: 2px solid rgba(255,255,255,.6);
+      border-radius: 14px;
+      box-shadow: 0 0 0 2px var(--orange);
     }
-    .settings-panel input:focus { border-color: var(--primary); }
-    .settings-panel small { display: block; margin-top: 6px; color: var(--muted); font-size: 0.78em; }
-
-    main { max-width: 640px; margin: 0 auto; padding: 16px; }
-
-    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px; }
-    .card-header { display: flex; align-items: center; gap: 8px; padding: 14px 18px; font-weight: 700; font-size: 1em; border-bottom: 2px solid #f5f5f5; }
-    .card-header .icon { font-size: 1.4em; }
-    .card-body { padding: 16px; }
-
-    #camera-container { position: relative; width: 100%; background: #000; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; }
-    #video { width: 100%; height: 100%; object-fit: cover; display: block; }
-    #canvas { display: none; }
-    .camera-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; color: #aaa; font-size: 0.9em; text-align: center; padding: 20px; gap: 10px; }
-    .camera-placeholder .big-icon { font-size: 3em; }
-
-    #preview-container { width: 100%; border-radius: 12px; overflow: hidden; display: none; }
-    #preview-img { width: 100%; height: auto; display: block; }
-
-    .cam-controls { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 12px 22px; border-radius: 50px; border: none; font-family: inherit;
-      font-weight: 700; font-size: 1em; cursor: pointer; transition: all 0.18s; text-align: center;
+    /* corner marks */
+    .guide-box::before, .guide-box::after,
+    .guide-box-inner::before, .guide-box-inner::after {
+      content: '';
+      position: absolute;
+      width: 22px; height: 22px;
+      border-color: var(--orange);
+      border-style: solid;
     }
-    .btn:active { transform: scale(0.96); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-    .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(255,112,67,0.4); }
-    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
-    .btn-green { background: var(--green); color: white; box-shadow: 0 4px 12px rgba(67,160,71,0.35); }
-    .btn-green:hover:not(:disabled) { background: var(--green-dark); }
-    .btn-blue { background: var(--blue); color: white; box-shadow: 0 4px 12px rgba(30,136,229,0.35); }
-    .btn-blue:hover:not(:disabled) { background: var(--blue-dark); }
-    .btn-outline { background: transparent; color: var(--muted); border: 2px solid #e0e0e0; }
-    .btn-outline:hover:not(:disabled) { border-color: #bbb; color: #555; }
-    .btn-sm { padding: 8px 16px; font-size: 0.88em; }
-    .btn-full { width: 100%; }
-
-    .upload-zone { border: 3px dashed #ffcc80; border-radius: 14px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; color: #bbb; }
-    .upload-zone:hover { border-color: var(--primary); background: #fff3e0; color: var(--primary); }
-    .upload-zone .big-icon { font-size: 2.5em; display: block; margin-bottom: 8px; }
-    #file-input { display: none; }
-
-    .processing-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; gap: 14px; text-align: center; }
-    .processing-overlay.show { display: flex; }
-    .spinner { width: 52px; height: 52px; border: 5px solid #ffe0b2; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.9s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .processing-overlay p { font-size: 1.05em; font-weight: 700; color: var(--primary); }
-    .processing-overlay small { color: var(--muted); font-size: 0.82em; }
-
-    #result-section { display: none; }
-    #text-display { background: #f9f9f9; border-radius: 14px; padding: 18px; font-size: 1.15em; line-height: 1.9; min-height: 80px; word-break: keep-all; border: 2px solid #eeeeee; }
-    #text-display .word { display: inline; border-radius: 4px; padding: 1px 2px; transition: background 0.15s; cursor: pointer; }
-    #text-display .word.active { background: var(--yellow); color: #333; }
-
-    .tts-controls { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
-    .tts-main { display: flex; gap: 10px; flex: 1; min-width: 0; }
-
-    .speed-control { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 12px; background: #f5f5f5; border-radius: 12px; padding: 10px 14px; }
-    .speed-control label { font-size: 0.85em; font-weight: 700; color: #555; white-space: nowrap; }
-    .speed-control input[type=range] { flex: 1; accent-color: var(--primary); height: 6px; }
-    .speed-control span { font-size: 0.88em; font-weight: 700; color: var(--primary); min-width: 32px; text-align: right; }
-
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 50px; font-size: 0.82em; font-weight: 700; }
-    .badge-success { background: #e8f5e9; color: var(--green); }
-
-    .error-box { background: #ffebee; border: 2px solid #ef9a9a; border-radius: 14px; padding: 14px 18px; color: #c62828; font-size: 0.9em; font-weight: 500; display: none; }
-    .error-box.show { display: block; }
-
-    .tips-box { background: #e8f5e9; border-radius: 14px; padding: 14px 18px; font-size: 0.88em; color: #2e7d32; }
-    .tips-box strong { font-weight: 700; }
-    .tips-box ul { margin-top: 6px; padding-left: 18px; }
-    .tips-box li { margin-bottom: 4px; }
-
-    @media (max-width: 480px) {
-      header h1 { font-size: 1.5em; }
-      .btn { font-size: 0.92em; padding: 11px 16px; }
+    .guide-box::before  { top: -2px;  left: -2px;  border-width: 3px 0 0 3px; border-radius: 12px 0 0 0; }
+    .guide-box::after   { top: -2px;  right: -2px; border-width: 3px 3px 0 0; border-radius: 0 12px 0 0; }
+    .guide-box-inner::before { bottom: -2px; left: -2px;  border-width: 0 0 3px 3px; border-radius: 0 0 0 12px; }
+    .guide-box-inner::after  { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 12px 0; }
+    .guide-hint {
+      position: absolute;
+      top: calc(15% - 44px);
+      left: 50%; transform: translateX(-50%);
+      white-space: nowrap;
+      color: #fff; font-size: 14px; font-weight: 500;
+      background: rgba(0,0,0,.5);
+      padding: 8px 16px; border-radius: 20px;
     }
+    .camera-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 20px 24px 44px;
+      background: linear-gradient(transparent, rgba(0,0,0,.7));
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+    .btn-capture {
+      width: 100%; max-width: 360px; height: 64px;
+      border: none; border-radius: 32px;
+      background: linear-gradient(135deg, var(--orange), #FF6B1A);
+      color: #fff; font-size: 20px; font-weight: 700;
+      cursor: pointer; transition: transform .15s;
+      box-shadow: 0 4px 24px rgba(255,140,66,.5);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-capture:active { transform: scale(.97); }
+    .btn-settings-top {
+      position: absolute; top: 54px; right: 20px;
+      width: 44px; height: 44px; border-radius: 22px;
+      background: rgba(0,0,0,.5); border: none;
+      color: #fff; font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* loading overlay */
+    .loading-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.75);
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      color: #fff;
+    }
+    .loading-overlay.show { display: flex; }
+    .loading-book {
+      font-size: 56px;
+      animation: bounce 0.7s ease-in-out infinite alternate;
+    }
+    @keyframes bounce {
+      from { transform: translateY(0) rotate(-5deg); }
+      to   { transform: translateY(-16px) rotate(5deg); }
+    }
+    .loading-text { font-size: 17px; font-weight: 600; }
+    .loading-sub  { font-size: 13px; color: rgba(255,255,255,.6); }
+
+    /* toast */
+    .toast {
+      position: fixed; top: 60px; left: 20px; right: 20px;
+      background: rgba(30,30,30,.95);
+      color: #fff; padding: 14px 16px; border-radius: 14px;
+      font-size: 14px; line-height: 1.5;
+      display: none; z-index: 999;
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
+    }
+    .toast.show { display: flex; align-items: flex-start; gap: 10px; }
+    .toast-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .toast-close { margin-left: auto; cursor: pointer; opacity: .6; font-size: 18px; flex-shrink: 0; }
+
+    /* ── RESULT ── */
+    #screen-result {
+      background: var(--cream);
+    }
+    .result-header {
+      background: #fff;
+      padding: 56px 20px 16px;
+      border-bottom: 1px solid #eee;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .btn-back {
+      width: 38px; height: 38px; border-radius: 19px;
+      background: var(--cream); border: none;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .result-header-title { font-size: 18px; font-weight: 700; flex: 1; }
+    .result-scroll {
+      flex: 1; overflow-y: auto;
+      padding: 20px; -webkit-overflow-scrolling: touch;
+    }
+    #result-text {
+      font-size: 18px; line-height: 1.9;
+      color: var(--dark); white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .highlight { background: rgba(255,140,66,.3); border-radius: 3px; }
+    .result-controls {
+      background: #fff;
+      border-top: 1px solid #eee;
+      padding: 16px 24px 36px;
+    }
+    .speed-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+    }
+    .speed-label { font-size: 13px; color: var(--gray); }
+    .speed-slider {
+      flex: 1; height: 4px; cursor: pointer;
+      -webkit-appearance: none; appearance: none;
+      background: linear-gradient(to right, var(--orange) 0%, var(--orange) 50%, #ddd 50%);
+      border-radius: 2px; outline: none;
+    }
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px; border-radius: 11px;
+      background: var(--orange);
+      box-shadow: 0 2px 8px rgba(255,140,66,.4);
+    }
+    .speed-val { font-size: 13px; font-weight: 600; color: var(--orange); min-width: 48px; text-align: right; }
+    .tts-buttons { display: flex; align-items: center; justify-content: center; gap: 20px; }
+    .btn-stop {
+      width: 56px; height: 56px; border-radius: 28px;
+      background: #eee; border: none; font-size: 20px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .btn-stop:active { background: #ddd; }
+    .btn-play {
+      width: 72px; height: 72px; border-radius: 36px;
+      background: linear-gradient(135deg, var(--orange), #FF6B1A);
+      border: none; font-size: 28px; color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(255,140,66,.45);
+      transition: transform .15s;
+    }
+    .btn-play:active { transform: scale(.93); }
+    .tts-status { font-size: 13px; color: var(--gray); text-align: center; margin-top: 10px; }
+
+    /* ── SETTINGS ── */
+    #screen-settings {
+      background: var(--cream);
+    }
+    .settings-header {
+      background: #fff;
+      padding: 56px 20px 16px;
+      border-bottom: 1px solid #eee;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .settings-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .settings-section {
+      background: #fff; border-radius: 16px;
+      overflow: hidden; margin-bottom: 16px;
+    }
+    .settings-section-title {
+      font-size: 12px; font-weight: 600; color: var(--gray);
+      padding: 14px 16px 8px; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .settings-row {
+      padding: 14px 16px;
+      border-top: 1px solid #f3f3f3;
+    }
+    .settings-row:first-of-type { border-top: none; }
+    .settings-row label { font-size: 15px; font-weight: 500; display: block; margin-bottom: 8px; }
+    .settings-input {
+      width: 100%; padding: 11px 14px; font-size: 14px;
+      border: 1.5px solid #eee; border-radius: 10px;
+      background: var(--cream); outline: none;
+      -webkit-appearance: none;
+    }
+    .settings-input:focus { border-color: var(--orange); }
+    .settings-hint { font-size: 12px; color: var(--gray); margin-top: 6px; line-height: 1.5; }
+    .btn-save {
+      margin-top: 10px; padding: 10px 20px;
+      background: var(--orange); color: #fff;
+      border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-save:active { opacity: .8; }
+    .saved-badge {
+      display: inline-block; background: #e8f5e9; color: #2e7d32;
+      font-size: 12px; padding: 3px 10px; border-radius: 10px;
+      margin-left: 8px; vertical-align: middle;
+    }
+    .how-to-step {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-top: 1px solid #f3f3f3;
+    }
+    .how-to-step:first-of-type { border-top: none; }
+    .step-icon {
+      width: 36px; height: 36px; border-radius: 18px;
+      background: rgba(255,140,66,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .step-text { font-size: 14px; line-height: 1.5; }
+
+    /* canvas hidden */
+    #capture-canvas { display: none; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>📖 책 읽어주기</h1>
-  <p>카메라로 책을 찍으면 읽어드려요!</p>
-  <button class="settings-btn" onclick="toggleSettings()" title="설정">⚙️</button>
-</header>
-
-<div class="settings-panel" id="settings-panel">
-  <label>🔑 Google Gemini API 키</label>
-  <input type="password" id="api-key-input" placeholder="AIza..." autocomplete="off" />
-  <small>API 키는 브라우저에만 저장되며 외부로 전송되지 않습니다. Google AI Studio에서 무료로 발급 가능합니다.</small>
+<!-- ── ONBOARDING ── -->
+<div id="screen-onboarding" class="screen active">
+  <div class="onboard-emoji">📚</div>
+  <div class="onboard-title">BookReader에<br>오신 것을 환영합니다!</div>
+  <div class="onboard-desc">카메라로 책을 비추면<br>자동으로 소리 내어 읽어드립니다</div>
+  <div class="onboard-label">Gemini API 키</div>
+  <input id="onboard-key" class="onboard-input" type="password"
+    placeholder="AI Studio API 키를 붙여넣으세요" autocomplete="off" />
+  <div class="onboard-hint">
+    <a href="https://ai.google.dev" target="_blank">ai.google.dev</a>에서 무료로 발급받을 수 있어요.<br>
+    키를 입력하지 않으면 텍스트 인식이 되지 않습니다.
+  </div>
+  <button class="btn-primary" id="onboard-start" disabled>시작하기 →</button>
 </div>
 
-<main>
-  <div class="card">
-    <div class="card-header"><span class="icon">📷</span><span>카메라 / 사진</span></div>
-    <div class="card-body">
-      <div id="camera-container">
-        <video id="video" autoplay playsinline></video>
-        <div class="camera-placeholder" id="camera-placeholder">
-          <span class="big-icon">📷</span>
-          <span>카메라를 시작하려면<br/>아래 버튼을 누르세요</span>
-        </div>
-      </div>
-      <canvas id="canvas"></canvas>
-      <div id="preview-container"><img id="preview-img" alt="촬영된 사진" /></div>
-      <div class="cam-controls">
-        <button class="btn btn-blue btn-sm" id="start-cam-btn" onclick="startCamera()">📷 카메라 시작</button>
-        <button class="btn btn-primary btn-sm" id="capture-btn" onclick="capturePhoto()" disabled>📸 촬영</button>
-        <button class="btn btn-outline btn-sm" id="retake-btn" onclick="retakePhoto()" style="display:none">🔄 다시 찍기</button>
-      </div>
-      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
-        <div style="flex:1;height:1px;background:#eee;"></div>
-        <span style="color:#bbb;font-size:0.82em;white-space:nowrap;">또는 사진 파일 선택</span>
-        <div style="flex:1;height:1px;background:#eee;"></div>
-      </div>
-      <label class="upload-zone" style="margin-top:10px" for="file-input">
-        <span class="big-icon">🖼️</span>
-        <span style="font-size:0.9em">사진 파일을 여기에 놓거나 클릭하세요</span>
-      </label>
-      <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(event)" />
-    </div>
+<!-- ── CAMERA ── -->
+<div id="screen-camera" class="screen">
+  <video id="video" autoplay playsinline muted></video>
+  <div class="camera-overlay">
+    <div class="guide-hint">📖 책 페이지를 사각형 안에 맞춰주세요</div>
+    <div class="guide-box"><div class="guide-box-inner"></div></div>
   </div>
-
-  <div class="card" id="processing-card" style="display:none">
-    <div class="processing-overlay show">
-      <div class="spinner"></div>
-      <p>글자를 읽고 있어요...</p>
-      <small>잠깐만 기다려주세요 ✨</small>
-    </div>
+  <button class="btn-settings-top" id="btn-open-settings">⚙️</button>
+  <div class="camera-bottom">
+    <button class="btn-capture" id="btn-capture">
+      <span>📸</span><span>읽기 시작</span>
+    </button>
   </div>
-
-  <div class="error-box" id="error-box"></div>
-
-  <div class="card" id="result-section">
-    <div class="card-header"><span class="icon">📝</span><span>인식된 글자</span><span id="result-badge" style="margin-left:auto"></span></div>
-    <div class="card-body">
-      <div id="text-display"></div>
-      <div class="tts-controls">
-        <div class="tts-main">
-          <button class="btn btn-green" id="play-btn" onclick="playTTS()">▶️ 읽어주기</button>
-          <button class="btn btn-outline" id="pause-btn" onclick="pauseTTS()" disabled>⏸️ 일시정지</button>
-          <button class="btn btn-outline" id="stop-btn" onclick="stopTTS()" disabled>⏹️ 멈추기</button>
-        </div>
-      </div>
-      <div class="speed-control">
-        <label>🐢 속도</label>
-        <input type="range" id="speed-range" min="0.5" max="1.8" step="0.1" value="0.85" oninput="updateSpeed(this.value)" />
-        <span id="speed-label">0.85×</span>
-      </div>
-      <div style="margin-top:14px">
-        <button class="btn btn-outline btn-sm btn-full" onclick="resetAll()">🗑️ 초기화</button>
-      </div>
-    </div>
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-book">📖</div>
+    <div class="loading-text">텍스트를 인식하는 중...</div>
+    <div class="loading-sub">잠깐만 기다려주세요</div>
   </div>
+</div>
 
-  <div class="card">
-    <div class="card-body">
-      <div class="tips-box">
-        <strong>💡 잘 찍는 방법</strong>
-        <ul>
-          <li>책을 평평하게 펴고, 밝은 곳에서 찍어요</li>
-          <li>글자가 선명하게 보이도록 가까이 찍어요</li>
-          <li>그림자가 글자 위에 생기지 않게 해요</li>
-          <li>한 페이지씩 찍으면 더 정확해요</li>
-        </ul>
+<!-- ── RESULT ── -->
+<div id="screen-result" class="screen">
+  <div class="result-header">
+    <button class="btn-back" id="btn-back-camera">←</button>
+    <div class="result-header-title">인식된 텍스트</div>
+  </div>
+  <div class="result-scroll">
+    <div id="result-text"></div>
+  </div>
+  <div class="result-controls">
+    <div class="speed-row">
+      <span class="speed-label">🐢</span>
+      <input type="range" class="speed-slider" id="speed-slider" min="0.4" max="1.4" step="0.1" value="0.9" />
+      <span class="speed-label">🐇</span>
+      <span class="speed-val" id="speed-val">보통</span>
+    </div>
+    <div class="tts-buttons">
+      <button class="btn-stop" id="btn-stop" title="정지">⏹</button>
+      <button class="btn-play" id="btn-play">▶</button>
+    </div>
+    <div class="tts-status" id="tts-status">▶ 읽어주기 버튼을 눌러보세요</div>
+  </div>
+</div>
+
+<!-- ── SETTINGS ── -->
+<div id="screen-settings" class="screen">
+  <div class="settings-header">
+    <button class="btn-back" id="btn-back-settings">←</button>
+    <div class="result-header-title">설정</div>
+  </div>
+  <div class="settings-body">
+    <div class="settings-section">
+      <div class="settings-section-title">API 설정</div>
+      <div class="settings-row">
+        <label>Gemini API 키 <span id="key-saved-badge" class="saved-badge" style="display:none">✓ 저장됨</span></label>
+        <input id="settings-key" class="settings-input" type="password"
+          placeholder="API 키 입력" autocomplete="off" />
+        <div class="settings-hint">Google AI Studio (ai.google.dev)에서 무료 발급</div>
+        <button class="btn-save" id="btn-save-key">저장</button>
       </div>
     </div>
+    <div class="settings-section">
+      <div class="settings-section-title">사용 방법</div>
+      <div class="how-to-step">
+        <div class="step-icon">📷</div>
+        <div class="step-text">카메라 화면에서 책 페이지를 가이드 안에 맞추세요</div>
+      </div>
+      <div class="how-to-step">
+        <div class="step-icon">👆</div>
+        <div class="step-text"><b>읽기 시작</b> 버튼을 누르면 텍스트가 자동 인식됩니다</div>
+      </div>
+      <div class="how-to-step">
+        <div class="step-icon">🔊</div>
+        <div class="step-text">인식 후 <b>▶ 버튼</b>을 누르면 한국어로 읽어드립니다</div>
+      </div>
+      <div class="how-to-step">
+        <div class="step-icon">🏠</div>
+        <div class="step-text">iPhone Safari에서 <b>공유 → 홈 화면에 추가</b>하면 앱처럼 사용 가능합니다</div>
+      </div>
+    </div>
   </div>
-</main>
+</div>
+
+<!-- hidden canvas for capture -->
+<canvas id="capture-canvas"></canvas>
+
+<!-- toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon">⚠️</span>
+  <span id="toast-msg"></span>
+  <span class="toast-close" id="toast-close">✕</span>
+</div>
 
 <script>
-  let stream = null, capturedImageBase64 = null, currentUtterance = null;
-  let words = [], wordSpans = [], ttsActive = false, ttsPaused = false;
-  let readingSpeed = 0.85, wordBoundarySupported = false;
+// ── State ──
+let apiKey = localStorage.getItem('br_api_key') || '';
+let ttsRate = parseFloat(localStorage.getItem('br_tts_rate') || '0.9');
+let currentText = '';
+let utterance = null;
+let ttsWords = [];
+let ttsWordIndex = 0;
+let isSpeaking = false;
+let isPaused = false;
+let wordSpans = [];
 
-  function toggleSettings() { document.getElementById('settings-panel').classList.toggle('open'); }
+// ── Screen navigation ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  if (id === 'camera') startCamera();
+  else stopCamera();
+}
 
-  function getApiKey() {
-    const input = document.getElementById('api-key-input').value.trim();
-    if (input) { localStorage.setItem('gemini_api_key', input); return input; }
-    return localStorage.getItem('gemini_api_key') || '';
-  }
+// ── Toast ──
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 5000);
+}
+document.getElementById('toast-close').onclick = () => {
+  document.getElementById('toast').classList.remove('show');
+};
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('gemini_api_key');
-    if (saved) document.getElementById('api-key-input').value = saved;
-    checkTTSSupport();
-  });
+// ── Onboarding ──
+const onboardKey = document.getElementById('onboard-key');
+const onboardStart = document.getElementById('onboard-start');
 
-  function checkTTSSupport() {
-    if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance('');
-      if ('onboundary' in u) wordBoundarySupported = true;
-    }
-  }
+if (apiKey) {
+  // already have key → go to camera
+  showScreen('camera');
+}
 
-  async function startCamera() {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 960 } }
-      });
-      const video = document.getElementById('video');
-      video.srcObject = stream; video.style.display = 'block';
-      document.getElementById('camera-placeholder').style.display = 'none';
-      document.getElementById('start-cam-btn').disabled = true;
-      document.getElementById('capture-btn').disabled = false;
-    } catch (e) {
-      showError('카메라를 사용할 수 없어요. 아래 사진 파일 선택을 이용해 주세요. (' + e.message + ')');
-    }
-  }
+onboardKey.addEventListener('input', () => {
+  onboardStart.disabled = onboardKey.value.trim().length < 10;
+});
+onboardStart.onclick = () => {
+  apiKey = onboardKey.value.trim();
+  localStorage.setItem('br_api_key', apiKey);
+  showScreen('camera');
+};
 
-  function capturePhoto() {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.92).split(',')[1];
-    document.getElementById('preview-img').src = canvas.toDataURL('image/jpeg', 0.92);
-    document.getElementById('camera-container').style.display = 'none';
-    document.getElementById('preview-container').style.display = 'block';
-    document.getElementById('capture-btn').style.display = 'none';
-    document.getElementById('retake-btn').style.display = 'inline-flex';
-    recognizeText();
-  }
+// ── Camera ──
+let stream = null;
+const video = document.getElementById('video');
 
-  function retakePhoto() {
-    capturedImageBase64 = null;
-    document.getElementById('preview-container').style.display = 'none';
-    document.getElementById('camera-container').style.display = 'block';
-    document.getElementById('capture-btn').style.display = 'inline-flex';
-    document.getElementById('capture-btn').disabled = false;
-    document.getElementById('retake-btn').style.display = 'none';
-    hideError();
-    document.getElementById('result-section').style.display = 'none';
-    document.getElementById('processing-card').style.display = 'none';
-  }
-
-  function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      capturedImageBase64 = e.target.result.split(',')[1];
-      document.getElementById('preview-img').src = e.target.result;
-      document.getElementById('camera-container').style.display = 'none';
-      document.getElementById('preview-container').style.display = 'block';
-      document.getElementById('capture-btn').style.display = 'none';
-      document.getElementById('retake-btn').style.display = 'inline-flex';
-      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-      recognizeText();
-    };
-    reader.readAsDataURL(file);
-  }
-
-  async function recognizeText() {
-    const apiKey = getApiKey();
-    if (!apiKey) { showError('API 키가 없어요! 오른쪽 위 ⚙️ 버튼을 눌러 Google Gemini API 키를 입력해주세요.'); return; }
-    hideError();
-    document.getElementById('processing-card').style.display = 'block';
-    document.getElementById('result-section').style.display = 'none';
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [
-            { inlineData: { mimeType: 'image/jpeg', data: capturedImageBase64 } },
-            { text: '이 이미지에서 책의 텍스트를 정확하게 인식해 주세요. 텍스트만 출력하고, 줄바꿈과 단락은 원본대로 유지해 주세요. 설명이나 부연은 하지 마세요. 텍스트가 없다면 "글자를 찾을 수 없어요"라고만 답해 주세요.' }
-          ]}],
-          generationConfig: { maxOutputTokens: 4096 }
-        })
-      });
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.error?.message || `HTTP ${response.status}`);
-      }
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-      document.getElementById('processing-card').style.display = 'none';
-      displayResult(text);
-    } catch (e) {
-      document.getElementById('processing-card').style.display = 'none';
-      showError('텍스트를 읽지 못했어요: ' + e.message);
-    }
-  }
-
-  function displayResult(text) {
-    stopTTS();
-    words = text.split(/(\s+)/);
-    const display = document.getElementById('text-display');
-    wordSpans = [];
-    display.innerHTML = '';
-    words.forEach((token) => {
-      if (/^\s+$/.test(token)) {
-        display.appendChild(document.createTextNode(token));
-      } else {
-        const span = document.createElement('span');
-        span.className = 'word'; span.textContent = token;
-        const idx = wordSpans.length;
-        span.onclick = () => playFromWord(idx);
-        display.appendChild(span); wordSpans.push(span);
-      }
+async function startCamera() {
+  if (stream) return;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
     });
-    document.getElementById('result-badge').innerHTML = '<span class="status-badge badge-success">✅ 인식 완료</span>';
-    document.getElementById('result-section').style.display = 'block';
-    document.getElementById('play-btn').disabled = false;
+    video.srcObject = stream;
+  } catch (e) {
+    showToast('카메라를 사용할 수 없습니다. 카메라 권한을 허용해주세요.');
   }
+}
 
-  function playTTS() {
-    if (ttsPaused && currentUtterance) { window.speechSynthesis.resume(); ttsPaused = false; updateTTSButtons(true); return; }
-    stopTTS(); startReading(0);
+function stopCamera() {
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+    video.srcObject = null;
   }
+}
 
-  function startReading(startWordIdx) {
-    const chunk = wordSpans.slice(startWordIdx).map(s => s.textContent).join(' ');
-    if (!chunk.trim()) return;
-    clearHighlights();
-    currentUtterance = new SpeechSynthesisUtterance(chunk);
-    currentUtterance.lang = detectLang(chunk);
-    currentUtterance.rate = readingSpeed;
-    let localWordIdx = startWordIdx;
-    if (wordBoundarySupported) {
-      currentUtterance.onboundary = (e) => {
-        if (e.name === 'word') {
-          clearHighlights();
-          if (localWordIdx < wordSpans.length) { wordSpans[localWordIdx].classList.add('active'); wordSpans[localWordIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest' }); localWordIdx++; }
-        }
-      };
+// ── Capture & OCR ──
+document.getElementById('btn-capture').onclick = async () => {
+  if (!apiKey) { showToast('API 키를 먼저 설정해주세요. ⚙️ 버튼을 눌러 입력하세요.'); return; }
+  if (!stream) { showToast('카메라가 준비되지 않았습니다.'); return; }
+
+  const canvas = document.getElementById('capture-canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const base64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+  document.getElementById('loading-overlay').classList.add('show');
+
+  try {
+    const text = await callGemini(base64, apiKey);
+    currentText = text;
+    showResult(text);
+  } catch (e) {
+    showToast(e.message || '오류가 발생했습니다. 다시 시도해주세요.');
+  } finally {
+    document.getElementById('loading-overlay').classList.remove('show');
+  }
+};
+
+async function callGemini(base64, key) {
+  const prompt = '이 이미지에 있는 책의 텍스트를 모두 읽고, 원문 그대로 반환해주세요. 텍스트 외의 설명이나 부가 내용은 포함하지 마세요.';
+  const body = {
+    contents: [{ parts: [
+      { text: prompt },
+      { inline_data: { mime_type: 'image/jpeg', data: base64 } }
+    ]}],
+    generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+  };
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+  );
+  if (res.status === 400 || res.status === 401 || res.status === 403)
+    throw new Error('API 키가 올바르지 않습니다. 설정에서 확인해주세요.');
+  if (res.status === 429)
+    throw new Error('API 사용 한도를 초과했습니다. 잠시 후 다시 시도해주세요.');
+  if (!res.ok) throw new Error('네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.');
+
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  if (!text) throw new Error('텍스트를 찾을 수 없습니다. 책 페이지가 잘 보이도록 다시 촬영해주세요.');
+  return text;
+}
+
+// ── Result & TTS ──
+function showResult(text) {
+  ttsStop();
+  showScreen('result');
+  const el = document.getElementById('result-text');
+
+  // wrap each word/char in a span for highlighting
+  ttsWords = text.split(/(\s+)/);
+  wordSpans = [];
+  el.innerHTML = '';
+  ttsWords.forEach((part, i) => {
+    if (/^\s+$/.test(part)) {
+      el.appendChild(document.createTextNode(part));
+    } else {
+      const span = document.createElement('span');
+      span.textContent = part;
+      span.dataset.idx = i;
+      el.appendChild(span);
+      wordSpans.push({ span, idx: i });
     }
-    currentUtterance.onstart = () => { ttsActive = true; ttsPaused = false; updateTTSButtons(true); };
-    currentUtterance.onend = () => { ttsActive = false; ttsPaused = false; clearHighlights(); updateTTSButtons(false); currentUtterance = null; };
-    currentUtterance.onerror = (e) => { if (e.error !== 'interrupted') showError('읽기 오류: ' + e.error); ttsActive = false; ttsPaused = false; clearHighlights(); updateTTSButtons(false); };
-    window.speechSynthesis.speak(currentUtterance);
+  });
+}
+
+// speed slider
+const speedSlider = document.getElementById('speed-slider');
+const speedVal = document.getElementById('speed-val');
+speedSlider.value = ttsRate;
+updateSpeedLabel(ttsRate);
+
+speedSlider.addEventListener('input', () => {
+  ttsRate = parseFloat(speedSlider.value);
+  localStorage.setItem('br_tts_rate', ttsRate);
+  updateSpeedLabel(ttsRate);
+  // update gradient
+  const pct = ((ttsRate - 0.4) / (1.4 - 0.4)) * 100;
+  speedSlider.style.background = `linear-gradient(to right, var(--orange) 0%, var(--orange) ${pct}%, #ddd ${pct}%)`;
+});
+
+function updateSpeedLabel(r) {
+  if (r < 0.7) speedVal.textContent = '느리게';
+  else if (r < 1.1) speedVal.textContent = '보통';
+  else speedVal.textContent = '빠르게';
+  const pct = ((r - 0.4) / (1.4 - 0.4)) * 100;
+  speedSlider.style.background = `linear-gradient(to right, var(--orange) 0%, var(--orange) ${pct}%, #ddd ${pct}%)`;
+}
+
+document.getElementById('btn-play').onclick = () => {
+  if (isSpeaking) { ttspause(); return; }
+  if (isPaused)   { ttsResume(); return; }
+  ttsSpeak();
+};
+document.getElementById('btn-stop').onclick = ttsStop;
+
+function ttsSpeak() {
+  if (!currentText) return;
+  window.speechSynthesis.cancel();
+
+  utterance = new SpeechSynthesisUtterance(currentText);
+  utterance.lang = 'ko-KR';
+  utterance.rate = ttsRate;
+  utterance.pitch = 1.05;
+
+  // Word boundary for highlight (works on iOS Safari)
+  utterance.onboundary = (e) => {
+    if (e.name !== 'word') return;
+    clearHighlight();
+    const charIdx = e.charIndex;
+    // find the word span that starts at or around charIdx
+    let cumLen = 0;
+    for (let i = 0; i < ttsWords.length; i++) {
+      if (cumLen === charIdx && !/^\s+$/.test(ttsWords[i])) {
+        const ws = wordSpans.find(w => w.idx === i);
+        if (ws) {
+          ws.span.classList.add('highlight');
+          ws.span.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        break;
+      }
+      cumLen += ttsWords[i].length;
+    }
+  };
+
+  utterance.onstart = () => { isSpeaking = true; isPaused = false; updateTTSUI(); };
+  utterance.onend   = () => { isSpeaking = false; isPaused = false; clearHighlight(); updateTTSUI(); };
+  utterance.onerror = () => { isSpeaking = false; isPaused = false; updateTTSUI(); };
+
+  window.speechSynthesis.speak(utterance);
+  isSpeaking = true; isPaused = false;
+  updateTTSUI();
+}
+
+function ttsStop() {
+  window.speechSynthesis.cancel();
+  isSpeaking = false; isPaused = false;
+  clearHighlight(); updateTTSUI();
+}
+
+function ttspause() {
+  window.speechSynthesis.pause();
+  isSpeaking = false; isPaused = true;
+  updateTTSUI();
+}
+
+function ttsResume() {
+  window.speechSynthesis.resume();
+  isSpeaking = true; isPaused = false;
+  updateTTSUI();
+}
+
+function clearHighlight() {
+  wordSpans.forEach(w => w.span.classList.remove('highlight'));
+}
+
+function updateTTSUI() {
+  const btn = document.getElementById('btn-play');
+  const status = document.getElementById('tts-status');
+  if (isSpeaking) { btn.textContent = '⏸'; status.textContent = '읽는 중...'; }
+  else if (isPaused) { btn.textContent = '▶'; status.textContent = '일시정지됨'; }
+  else { btn.textContent = '▶'; status.textContent = '▶ 읽어주기 버튼을 눌러보세요'; }
+}
+
+// ── Settings ──
+const settingsKeyInput = document.getElementById('settings-key');
+
+document.getElementById('btn-open-settings').onclick = () => {
+  settingsKeyInput.value = '';
+  const badge = document.getElementById('key-saved-badge');
+  badge.style.display = apiKey ? 'inline-block' : 'none';
+  showScreen('settings');
+};
+
+document.getElementById('btn-save-key').onclick = () => {
+  const val = settingsKeyInput.value.trim();
+  if (!val) { showToast('API 키를 입력해주세요.'); return; }
+  apiKey = val;
+  localStorage.setItem('br_api_key', apiKey);
+  settingsKeyInput.value = '';
+  document.getElementById('key-saved-badge').style.display = 'inline-block';
+  showToast('✅ API 키가 저장되었습니다.');
+};
+
+document.getElementById('btn-back-settings').onclick = () => {
+  ttsStop();
+  showScreen('camera');
+};
+document.getElementById('btn-back-camera').onclick = () => {
+  ttsStop();
+  showScreen('camera');
+};
+
+// ── iOS Safari keep-alive for speechSynthesis ──
+// iOS Safari stops TTS after ~15s; periodic resume workaround
+setInterval(() => {
+  if (isSpeaking && window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
   }
-
-  function pauseTTS() {
-    if (ttsActive && !ttsPaused) { window.speechSynthesis.pause(); ttsPaused = true; updateTTSButtons(true); document.getElementById('pause-btn').textContent = '▶️ 계속'; }
-  }
-
-  function stopTTS() {
-    window.speechSynthesis.cancel(); ttsActive = false; ttsPaused = false; currentUtterance = null;
-    clearHighlights(); updateTTSButtons(false);
-    const pauseBtn = document.getElementById('pause-btn');
-    if (pauseBtn) pauseBtn.textContent = '⏸️ 일시정지';
-  }
-
-  function playFromWord(idx) { stopTTS(); setTimeout(() => startReading(idx), 80); }
-  function clearHighlights() { wordSpans.forEach(s => s.classList.remove('active')); }
-
-  function updateTTSButtons(playing) {
-    const playBtn = document.getElementById('play-btn');
-    const pauseBtn = document.getElementById('pause-btn');
-    const stopBtn = document.getElementById('stop-btn');
-    if (!playBtn) return;
-    if (playing && !ttsPaused) { playBtn.disabled = true; pauseBtn.disabled = false; stopBtn.disabled = false; }
-    else if (ttsPaused) { playBtn.disabled = true; pauseBtn.disabled = false; stopBtn.disabled = false; }
-    else { playBtn.disabled = false; pauseBtn.disabled = true; stopBtn.disabled = true; }
-  }
-
-  function updateSpeed(val) {
-    readingSpeed = parseFloat(val);
-    document.getElementById('speed-label').textContent = readingSpeed.toFixed(2) + '×';
-    if (ttsActive) { const was = !ttsPaused; stopTTS(); if (was) setTimeout(() => startReading(0), 80); }
-  }
-
-  function detectLang(text) {
-    return (text.match(/[가-힣]/g) || []).length > text.length * 0.1 ? 'ko-KR' : 'en-US';
-  }
-
-  function resetAll() {
-    stopTTS(); capturedImageBase64 = null;
-    document.getElementById('result-section').style.display = 'none';
-    document.getElementById('processing-card').style.display = 'none';
-    document.getElementById('preview-container').style.display = 'none';
-    document.getElementById('camera-container').style.display = 'block';
-    document.getElementById('capture-btn').style.display = 'inline-flex';
-    document.getElementById('retake-btn').style.display = 'none';
-    document.getElementById('file-input').value = '';
-    hideError();
-    if (stream) { document.getElementById('capture-btn').disabled = false; document.getElementById('start-cam-btn').disabled = true; }
-    else { document.getElementById('capture-btn').disabled = true; document.getElementById('start-cam-btn').disabled = false; }
-  }
-
-  function showError(msg) { const box = document.getElementById('error-box'); box.textContent = '⚠️ ' + msg; box.classList.add('show'); }
-  function hideError() { document.getElementById('error-box').classList.remove('show'); }
-
-  setInterval(() => { if (window.speechSynthesis && !ttsActive) window.speechSynthesis.resume(); }, 10000);
+}, 10000);
 </script>
 </body>
 </html>
