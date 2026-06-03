@@ -425,8 +425,8 @@
 
       <!-- Controls -->
       <div class="cam-controls">
-        <button class="btn btn-blue btn-sm" id="start-cam-btn" onclick="startCamera()">
-          📷 카메라 시작
+        <button class="btn btn-blue btn-sm" id="start-cam-btn" onclick="startCamera()" style="display:none">
+          📷 카메라 다시 시작
         </button>
         <button class="btn btn-primary btn-sm" id="capture-btn" onclick="capturePhoto()" disabled>
           📸 촬영
@@ -548,6 +548,7 @@
     const saved = localStorage.getItem('gemini_api_key');
     if (saved) document.getElementById('api-key-input').value = saved;
     checkTTSSupport();
+    startCamera();
   });
 
   function checkTTSSupport() {
@@ -570,6 +571,7 @@
       document.getElementById('start-cam-btn').disabled = true;
       document.getElementById('capture-btn').disabled = false;
     } catch (e) {
+      document.getElementById('start-cam-btn').style.display = 'inline-flex';
       showError('카메라를 사용할 수 없어요. 아래 사진 파일 선택을 이용해 주세요. (' + e.message + ')');
     }
   }
