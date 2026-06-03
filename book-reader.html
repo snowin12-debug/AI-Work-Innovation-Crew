@@ -39,166 +39,58 @@
       position: relative;
       box-shadow: 0 4px 12px rgba(255,112,67,0.4);
     }
-    header h1 {
-      font-size: 1.8em;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-    }
-    header p {
-      font-size: 0.9em;
-      opacity: 0.9;
-      margin-top: 4px;
-    }
+    header h1 { font-size: 1.8em; font-weight: 900; letter-spacing: -0.5px; }
+    header p { font-size: 0.9em; opacity: 0.9; margin-top: 4px; }
     .settings-btn {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255,255,255,0.25);
-      border: none;
-      border-radius: 50%;
-      width: 42px;
-      height: 42px;
-      cursor: pointer;
-      font-size: 1.3em;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.25); border: none; border-radius: 50%;
+      width: 42px; height: 42px; cursor: pointer; font-size: 1.3em; color: white;
+      display: flex; align-items: center; justify-content: center; transition: background 0.2s;
     }
     .settings-btn:hover { background: rgba(255,255,255,0.4); }
 
     .settings-panel {
-      background: #fff3e0;
-      border-bottom: 2px dashed #ffcc80;
-      padding: 16px;
-      display: none;
-      animation: slideDown 0.2s ease;
+      background: #fff3e0; border-bottom: 2px dashed #ffcc80; padding: 16px;
+      display: none; animation: slideDown 0.2s ease;
     }
     .settings-panel.open { display: block; }
     @keyframes slideDown {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .settings-panel label {
-      font-size: 0.85em;
-      font-weight: 700;
-      color: #e65100;
-      display: block;
-      margin-bottom: 6px;
-    }
+    .settings-panel label { font-size: 0.85em; font-weight: 700; color: #e65100; display: block; margin-bottom: 6px; }
     .settings-panel input {
-      width: 100%;
-      padding: 10px 14px;
-      border: 2px solid #ffcc80;
-      border-radius: 10px;
-      font-size: 0.95em;
-      font-family: monospace;
-      background: white;
-      outline: none;
-      transition: border-color 0.2s;
+      width: 100%; padding: 10px 14px; border: 2px solid #ffcc80; border-radius: 10px;
+      font-size: 0.95em; font-family: monospace; background: white; outline: none; transition: border-color 0.2s;
     }
     .settings-panel input:focus { border-color: var(--primary); }
-    .settings-panel small {
-      display: block;
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 0.78em;
-    }
+    .settings-panel small { display: block; margin-top: 6px; color: var(--muted); font-size: 0.78em; }
 
-    main {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 16px;
-    }
+    main { max-width: 640px; margin: 0 auto; padding: 16px; }
 
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 18px;
-      font-weight: 700;
-      font-size: 1em;
-      border-bottom: 2px solid #f5f5f5;
-    }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px; }
+    .card-header { display: flex; align-items: center; gap: 8px; padding: 14px 18px; font-weight: 700; font-size: 1em; border-bottom: 2px solid #f5f5f5; }
     .card-header .icon { font-size: 1.4em; }
     .card-body { padding: 16px; }
 
-    #camera-container {
-      position: relative;
-      width: 100%;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      aspect-ratio: 4/3;
-    }
-    #video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+    #camera-container { position: relative; width: 100%; background: #000; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; }
+    #video { width: 100%; height: 100%; object-fit: cover; display: block; }
     #canvas { display: none; }
-    .camera-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      color: #aaa;
-      font-size: 0.9em;
-      text-align: center;
-      padding: 20px;
-      gap: 10px;
-    }
+    .camera-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; color: #aaa; font-size: 0.9em; text-align: center; padding: 20px; gap: 10px; }
     .camera-placeholder .big-icon { font-size: 3em; }
 
-    #preview-container {
-      width: 100%;
-      border-radius: 12px;
-      overflow: hidden;
-      display: none;
-    }
-    #preview-img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
+    #preview-container { width: 100%; border-radius: 12px; overflow: hidden; display: none; }
+    #preview-img { width: 100%; height: auto; display: block; }
 
-    .cam-controls {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
+    .cam-controls { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
 
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 12px 22px;
-      border-radius: 50px;
-      border: none;
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 1em;
-      cursor: pointer;
-      transition: all 0.18s;
-      text-align: center;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 22px; border-radius: 50px; border: none; font-family: inherit;
+      font-weight: 700; font-size: 1em; cursor: pointer; transition: all 0.18s; text-align: center;
     }
     .btn:active { transform: scale(0.96); }
     .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-
     .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(255,112,67,0.4); }
     .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
     .btn-green { background: var(--green); color: white; box-shadow: 0 4px 12px rgba(67,160,71,0.35); }
@@ -210,115 +102,38 @@
     .btn-sm { padding: 8px 16px; font-size: 0.88em; }
     .btn-full { width: 100%; }
 
-    .upload-zone {
-      border: 3px dashed #ffcc80;
-      border-radius: 14px;
-      padding: 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      color: #bbb;
-    }
+    .upload-zone { border: 3px dashed #ffcc80; border-radius: 14px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; color: #bbb; }
     .upload-zone:hover { border-color: var(--primary); background: #fff3e0; color: var(--primary); }
     .upload-zone .big-icon { font-size: 2.5em; display: block; margin-bottom: 8px; }
     #file-input { display: none; }
 
-    .processing-overlay {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
-      gap: 14px;
-      text-align: center;
-    }
+    .processing-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; gap: 14px; text-align: center; }
     .processing-overlay.show { display: flex; }
-    .spinner {
-      width: 52px;
-      height: 52px;
-      border: 5px solid #ffe0b2;
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
-    }
+    .spinner { width: 52px; height: 52px; border: 5px solid #ffe0b2; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.9s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .processing-overlay p { font-size: 1.05em; font-weight: 700; color: var(--primary); }
     .processing-overlay small { color: var(--muted); font-size: 0.82em; }
 
     #result-section { display: none; }
-
-    #text-display {
-      background: #f9f9f9;
-      border-radius: 14px;
-      padding: 18px;
-      font-size: 1.15em;
-      line-height: 1.9;
-      min-height: 80px;
-      word-break: keep-all;
-      border: 2px solid #eeeeee;
-    }
-    #text-display .word {
-      display: inline;
-      border-radius: 4px;
-      padding: 1px 2px;
-      transition: background 0.15s;
-      cursor: pointer;
-    }
+    #text-display { background: #f9f9f9; border-radius: 14px; padding: 18px; font-size: 1.15em; line-height: 1.9; min-height: 80px; word-break: keep-all; border: 2px solid #eeeeee; }
+    #text-display .word { display: inline; border-radius: 4px; padding: 1px 2px; transition: background 0.15s; cursor: pointer; }
     #text-display .word.active { background: var(--yellow); color: #333; }
 
-    .tts-controls {
-      display: flex;
-      gap: 10px;
-      margin-top: 14px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+    .tts-controls { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
     .tts-main { display: flex; gap: 10px; flex: 1; min-width: 0; }
 
-    .speed-control {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      margin-top: 12px;
-      background: #f5f5f5;
-      border-radius: 12px;
-      padding: 10px 14px;
-    }
+    .speed-control { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 12px; background: #f5f5f5; border-radius: 12px; padding: 10px 14px; }
     .speed-control label { font-size: 0.85em; font-weight: 700; color: #555; white-space: nowrap; }
     .speed-control input[type=range] { flex: 1; accent-color: var(--primary); height: 6px; }
     .speed-control span { font-size: 0.88em; font-weight: 700; color: var(--primary); min-width: 32px; text-align: right; }
 
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
-      border-radius: 50px;
-      font-size: 0.82em;
-      font-weight: 700;
-    }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 50px; font-size: 0.82em; font-weight: 700; }
     .badge-success { background: #e8f5e9; color: var(--green); }
 
-    .error-box {
-      background: #ffebee;
-      border: 2px solid #ef9a9a;
-      border-radius: 14px;
-      padding: 14px 18px;
-      color: #c62828;
-      font-size: 0.9em;
-      font-weight: 500;
-      display: none;
-    }
+    .error-box { background: #ffebee; border: 2px solid #ef9a9a; border-radius: 14px; padding: 14px 18px; color: #c62828; font-size: 0.9em; font-weight: 500; display: none; }
     .error-box.show { display: block; }
 
-    .tips-box {
-      background: #e8f5e9;
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-size: 0.88em;
-      color: #2e7d32;
-    }
+    .tips-box { background: #e8f5e9; border-radius: 14px; padding: 14px 18px; font-size: 0.88em; color: #2e7d32; }
     .tips-box strong { font-weight: 700; }
     .tips-box ul { margin-top: 6px; padding-left: 18px; }
     .tips-box li { margin-bottom: 4px; }
@@ -344,12 +159,8 @@
 </div>
 
 <main>
-
   <div class="card">
-    <div class="card-header">
-      <span class="icon">📷</span>
-      <span>카메라 / 사진</span>
-    </div>
+    <div class="card-header"><span class="icon">📷</span><span>카메라 / 사진</span></div>
     <div class="card-body">
       <div id="camera-container">
         <video id="video" autoplay playsinline></video>
@@ -359,21 +170,16 @@
         </div>
       </div>
       <canvas id="canvas"></canvas>
-
-      <div id="preview-container">
-        <img id="preview-img" alt="촬영된 사진" />
-      </div>
-
+      <div id="preview-container"><img id="preview-img" alt="촬영된 사진" /></div>
       <div class="cam-controls">
         <button class="btn btn-blue btn-sm" id="start-cam-btn" onclick="startCamera()">📷 카메라 시작</button>
         <button class="btn btn-primary btn-sm" id="capture-btn" onclick="capturePhoto()" disabled>📸 촬영</button>
         <button class="btn btn-outline btn-sm" id="retake-btn" onclick="retakePhoto()" style="display:none">🔄 다시 찍기</button>
       </div>
-
-      <div style="margin-top: 12px; display: flex; align-items: center; gap: 10px;">
-        <div style="flex:1; height:1px; background:#eee;"></div>
-        <span style="color:#bbb; font-size:0.82em; white-space:nowrap;">또는 사진 파일 선택</span>
-        <div style="flex:1; height:1px; background:#eee;"></div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;height:1px;background:#eee;"></div>
+        <span style="color:#bbb;font-size:0.82em;white-space:nowrap;">또는 사진 파일 선택</span>
+        <div style="flex:1;height:1px;background:#eee;"></div>
       </div>
       <label class="upload-zone" style="margin-top:10px" for="file-input">
         <span class="big-icon">🖼️</span>
@@ -394,14 +200,9 @@
   <div class="error-box" id="error-box"></div>
 
   <div class="card" id="result-section">
-    <div class="card-header">
-      <span class="icon">📝</span>
-      <span>인식된 글자</span>
-      <span id="result-badge" style="margin-left:auto"></span>
-    </div>
+    <div class="card-header"><span class="icon">📝</span><span>인식된 글자</span><span id="result-badge" style="margin-left:auto"></span></div>
     <div class="card-body">
       <div id="text-display"></div>
-
       <div class="tts-controls">
         <div class="tts-main">
           <button class="btn btn-green" id="play-btn" onclick="playTTS()">▶️ 읽어주기</button>
@@ -409,13 +210,11 @@
           <button class="btn btn-outline" id="stop-btn" onclick="stopTTS()" disabled>⏹️ 멈추기</button>
         </div>
       </div>
-
       <div class="speed-control">
         <label>🐢 속도</label>
         <input type="range" id="speed-range" min="0.5" max="1.8" step="0.1" value="0.85" oninput="updateSpeed(this.value)" />
         <span id="speed-label">0.85×</span>
       </div>
-
       <div style="margin-top:14px">
         <button class="btn btn-outline btn-sm btn-full" onclick="resetAll()">🗑️ 초기화</button>
       </div>
@@ -435,23 +234,14 @@
       </div>
     </div>
   </div>
-
 </main>
 
 <script>
-  let stream = null;
-  let capturedImageBase64 = null;
-  let currentUtterance = null;
-  let words = [];
-  let wordSpans = [];
-  let ttsActive = false;
-  let ttsPaused = false;
-  let readingSpeed = 0.85;
-  let wordBoundarySupported = false;
+  let stream = null, capturedImageBase64 = null, currentUtterance = null;
+  let words = [], wordSpans = [], ttsActive = false, ttsPaused = false;
+  let readingSpeed = 0.85, wordBoundarySupported = false;
 
-  function toggleSettings() {
-    document.getElementById('settings-panel').classList.toggle('open');
-  }
+  function toggleSettings() { document.getElementById('settings-panel').classList.toggle('open'); }
 
   function getApiKey() {
     const input = document.getElementById('api-key-input').value.trim();
@@ -478,8 +268,7 @@
         video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 960 } }
       });
       const video = document.getElementById('video');
-      video.srcObject = stream;
-      video.style.display = 'block';
+      video.srcObject = stream; video.style.display = 'block';
       document.getElementById('camera-placeholder').style.display = 'none';
       document.getElementById('start-cam-btn').disabled = true;
       document.getElementById('capture-btn').disabled = false;
@@ -491,12 +280,10 @@
   function capturePhoto() {
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.92).split(',')[1];
-    const img = document.getElementById('preview-img');
-    img.src = canvas.toDataURL('image/jpeg', 0.92);
+    document.getElementById('preview-img').src = canvas.toDataURL('image/jpeg', 0.92);
     document.getElementById('camera-container').style.display = 'none';
     document.getElementById('preview-container').style.display = 'block';
     document.getElementById('capture-btn').style.display = 'none';
@@ -521,9 +308,8 @@
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-      const dataUrl = e.target.result;
-      capturedImageBase64 = dataUrl.split(',')[1];
-      document.getElementById('preview-img').src = dataUrl;
+      capturedImageBase64 = e.target.result.split(',')[1];
+      document.getElementById('preview-img').src = e.target.result;
       document.getElementById('camera-container').style.display = 'none';
       document.getElementById('preview-container').style.display = 'block';
       document.getElementById('capture-btn').style.display = 'none';
@@ -536,15 +322,12 @@
 
   async function recognizeText() {
     const apiKey = getApiKey();
-    if (!apiKey) {
-      showError('API 키가 없어요! 오른쪽 위 ⚙️ 버튼을 눌러 Google Gemini API 키를 입력해주세요.');
-      return;
-    }
+    if (!apiKey) { showError('API 키가 없어요! 오른쪽 위 ⚙️ 버튼을 눌러 Google Gemini API 키를 입력해주세요.'); return; }
     hideError();
     document.getElementById('processing-card').style.display = 'block';
     document.getElementById('result-section').style.display = 'none';
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -581,12 +364,10 @@
         display.appendChild(document.createTextNode(token));
       } else {
         const span = document.createElement('span');
-        span.className = 'word';
-        span.textContent = token;
+        span.className = 'word'; span.textContent = token;
         const idx = wordSpans.length;
         span.onclick = () => playFromWord(idx);
-        display.appendChild(span);
-        wordSpans.push(span);
+        display.appendChild(span); wordSpans.push(span);
       }
     });
     document.getElementById('result-badge').innerHTML = '<span class="status-badge badge-success">✅ 인식 완료</span>';
@@ -595,14 +376,8 @@
   }
 
   function playTTS() {
-    if (ttsPaused && currentUtterance) {
-      window.speechSynthesis.resume();
-      ttsPaused = false;
-      updateTTSButtons(true);
-      return;
-    }
-    stopTTS();
-    startReading(0);
+    if (ttsPaused && currentUtterance) { window.speechSynthesis.resume(); ttsPaused = false; updateTTSButtons(true); return; }
+    stopTTS(); startReading(0);
   }
 
   function startReading(startWordIdx) {
@@ -617,45 +392,28 @@
       currentUtterance.onboundary = (e) => {
         if (e.name === 'word') {
           clearHighlights();
-          if (localWordIdx < wordSpans.length) {
-            wordSpans[localWordIdx].classList.add('active');
-            wordSpans[localWordIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            localWordIdx++;
-          }
+          if (localWordIdx < wordSpans.length) { wordSpans[localWordIdx].classList.add('active'); wordSpans[localWordIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest' }); localWordIdx++; }
         }
       };
     }
     currentUtterance.onstart = () => { ttsActive = true; ttsPaused = false; updateTTSButtons(true); };
     currentUtterance.onend = () => { ttsActive = false; ttsPaused = false; clearHighlights(); updateTTSButtons(false); currentUtterance = null; };
-    currentUtterance.onerror = (e) => {
-      if (e.error !== 'interrupted') showError('읽기 오류: ' + e.error);
-      ttsActive = false; ttsPaused = false; clearHighlights(); updateTTSButtons(false);
-    };
+    currentUtterance.onerror = (e) => { if (e.error !== 'interrupted') showError('읽기 오류: ' + e.error); ttsActive = false; ttsPaused = false; clearHighlights(); updateTTSButtons(false); };
     window.speechSynthesis.speak(currentUtterance);
   }
 
   function pauseTTS() {
-    if (ttsActive && !ttsPaused) {
-      window.speechSynthesis.pause();
-      ttsPaused = true;
-      updateTTSButtons(true);
-      document.getElementById('pause-btn').textContent = '▶️ 계속';
-    }
+    if (ttsActive && !ttsPaused) { window.speechSynthesis.pause(); ttsPaused = true; updateTTSButtons(true); document.getElementById('pause-btn').textContent = '▶️ 계속'; }
   }
 
   function stopTTS() {
-    window.speechSynthesis.cancel();
-    ttsActive = false; ttsPaused = false; currentUtterance = null;
+    window.speechSynthesis.cancel(); ttsActive = false; ttsPaused = false; currentUtterance = null;
     clearHighlights(); updateTTSButtons(false);
     const pauseBtn = document.getElementById('pause-btn');
     if (pauseBtn) pauseBtn.textContent = '⏸️ 일시정지';
   }
 
-  function playFromWord(idx) {
-    stopTTS();
-    setTimeout(() => startReading(idx), 80);
-  }
-
+  function playFromWord(idx) { stopTTS(); setTimeout(() => startReading(idx), 80); }
   function clearHighlights() { wordSpans.forEach(s => s.classList.remove('active')); }
 
   function updateTTSButtons(playing) {
@@ -679,8 +437,7 @@
   }
 
   function resetAll() {
-    stopTTS();
-    capturedImageBase64 = null;
+    stopTTS(); capturedImageBase64 = null;
     document.getElementById('result-section').style.display = 'none';
     document.getElementById('processing-card').style.display = 'none';
     document.getElementById('preview-container').style.display = 'none';
@@ -693,12 +450,7 @@
     else { document.getElementById('capture-btn').disabled = true; document.getElementById('start-cam-btn').disabled = false; }
   }
 
-  function showError(msg) {
-    const box = document.getElementById('error-box');
-    box.textContent = '⚠️ ' + msg;
-    box.classList.add('show');
-  }
-
+  function showError(msg) { const box = document.getElementById('error-box'); box.textContent = '⚠️ ' + msg; box.classList.add('show'); }
   function hideError() { document.getElementById('error-box').classList.remove('show'); }
 
   setInterval(() => { if (window.speechSynthesis && !ttsActive) window.speechSynthesis.resume(); }, 10000);
