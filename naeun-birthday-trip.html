@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎀 나은 생일 기념 티니핑 여행 계획표 🎀</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+    :root {
+      --pink-light: #ffe0ef;
+      --pink-mid: #ffb3d1;
+      --pink-main: #ff6fa8;
+      --pink-dark: #d63a7a;
+      --purple-light: #f0e0ff;
+      --purple-mid: #c9a0dc;
+      --purple-main: #9b59b6;
+      --yellow: #fff176;
+      --yellow-dark: #f9a825;
+      --mint: #b2f5ea;
+      --white: #ffffff;
+      --text-dark: #3d1a30;
+      --text-mid: #7b3f62;
+      --shadow: 0 4px 20px rgba(255, 111, 168, 0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(135deg, #fff0f7 0%, #f8f0ff 50%, #fff0f7 100%);
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    /* ─── HEADER ─── */
+    .hero {
+      background: linear-gradient(135deg, #ff6fa8 0%, #c46fd4 50%, #ff6fa8 100%);
+      padding: 40px 20px 50px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: -40px;
+      width: 250px; height: 250px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+    .star-row {
+      font-size: 22px;
+      letter-spacing: 6px;
+      margin-bottom: 14px;
+      opacity: 0.85;
+    }
+    .hero h1 {
+      font-size: clamp(22px, 5vw, 36px);
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .hero h1 span { color: var(--yellow); }
+    .hero-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 20px;
+    }
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .badge {
+      background: rgba(255,255,255,0.22);
+      border: 1.5px solid rgba(255,255,255,0.5);
+      color: #fff;
+      border-radius: 30px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      backdrop-filter: blur(4px);
+    }
+    .wave {
+      height: 40px;
+      background: linear-gradient(135deg, #fff0f7 0%, #f8f0ff 100%);
+      clip-path: ellipse(100% 100% at 50% 100%);
+      margin-top: -2px;
+    }
+
+    /* ─── CONTAINER ─── */
+    .container { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
+
+    /* ─── SECTION TITLE ─── */
+    .sec-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--pink-dark);
+      margin: 32px 0 14px;
+    }
+    .sec-title .icon-circle {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--pink-main), var(--purple-main));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ─── QUICK SUMMARY CARDS ─── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .sum-card {
+      background: var(--white);
+      border-radius: 18px;
+      padding: 18px 14px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      border-top: 4px solid var(--pink-main);
+    }
+    .sum-card.purple { border-top-color: var(--purple-main); }
+    .sum-card.yellow { border-top-color: var(--yellow-dark); }
+    .sum-card.mint { border-top-color: #26a69a; }
+    .sum-card .emoji { font-size: 28px; margin-bottom: 6px; }
+    .sum-card .label { font-size: 11px; color: #aaa; font-weight: 500; margin-bottom: 4px; }
+    .sum-card .value { font-size: 14px; font-weight: 700; color: var(--text-dark); line-height: 1.4; }
+
+    /* ─── DAY CARD ─── */
+    .day-card {
+      background: var(--white);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .day-header {
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .day-header.day1 { background: linear-gradient(90deg, #ff6fa8, #ff9ec4); }
+    .day-header.day2 { background: linear-gradient(90deg, #9b59b6, #c46fd4); }
+    .day-num {
+      background: rgba(255,255,255,0.3);
+      border-radius: 12px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 900;
+      color: #fff;
+    }
+    .day-title { font-size: 17px; font-weight: 900; color: #fff; flex: 1; }
+    .day-sub { font-size: 12px; color: rgba(255,255,255,0.85); }
+
+    .timeline { padding: 8px 22px 20px; }
+    .tl-item {
+      display: flex;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--pink-light);
+      position: relative;
+    }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-time {
+      min-width: 72px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      padding-top: 2px;
+    }
+    .tl-dot {
+      width: 10px; height: 10px;
+      background: var(--pink-main);
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 3px var(--pink-light);
+    }
+    .tl-dot.purple { background: var(--purple-main); box-shadow: 0 0 0 3px var(--purple-light); }
+    .tl-content { flex: 1; }
+    .tl-content strong { font-size: 14px; display: block; margin-bottom: 2px; }
+    .tl-content p { font-size: 12px; color: #888; line-height: 1.5; }
+    .tl-tip {
+      display: inline-block;
+      background: var(--yellow);
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #7b4f00;
+      margin-top: 4px;
+    }
+
+    /* ─── INFO CARDS ─── */
+    .info-card {
+      background: var(--white);
+      border-radius: 22px;
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .info-card h3 {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--pink-dark);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid #fce4ec;
+      font-size: 13px;
+      gap: 12px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .key { color: #aaa; font-weight: 500; min-width: 90px; flex-shrink: 0; }
+    .info-row .val { font-weight: 700; color: var(--text-dark); text-align: right; }
+    .info-row .val.pink { color: var(--pink-dark); }
+    .info-row .val.green { color: #2e7d32; }
+
+    /* ─── PRICE TABLE ─── */
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .price-table th {
+      background: linear-gradient(90deg, var(--pink-main), var(--purple-main));
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 700;
+    }
+    .price-table th:last-child { text-align: right; }
+    .price-table td { padding: 10px 14px; border-bottom: 1px solid #fce4ec; }
+    .price-table td:last-child { text-align: right; font-weight: 700; }
+    .price-table tr:last-child td {
+      background: var(--pink-light);
+      font-weight: 900;
+      font-size: 14px;
+      color: var(--pink-dark);
+      border-bottom: none;
+    }
+    .price-table tr:nth-child(even) td { background: #fff8fc; }
+
+    /* ─── SPOTS ─── */
+    .spots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .spot-card {
+      background: var(--white);
+      border-radius: 18px;
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--pink-main);
+    }
+    .spot-card:nth-child(2) { border-left-color: var(--purple-main); }
+    .spot-card:nth-child(3) { border-left-color: var(--yellow-dark); }
+    .spot-card .spot-icon { font-size: 28px; margin-bottom: 8px; }
+    .spot-card h4 { font-size: 14px; font-weight: 900; margin-bottom: 4px; color: var(--text-dark); }
+    .spot-card p { font-size: 12px; color: #888; line-height: 1.5; }
+    .spot-tag {
+      display: inline-block;
+      margin-top: 8px;
+      background: var(--pink-light);
+      color: var(--pink-dark);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .spot-card:nth-child(2) .spot-tag { background: var(--purple-light); color: var(--purple-main); }
+    .spot-card:nth-child(3) .spot-tag { background: #fff8e1; color: var(--yellow-dark); }
+
+    /* ─── PACKING ─── */
+    .pack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .pack-box {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .pack-box h4 {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--pink-dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pack-box ul { list-style: none; }
+    .pack-box ul li {
+      font-size: 12px;
+      padding: 4px 0;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pack-box ul li::before {
+      content: '☑️';
+      font-size: 11px;
+    }
+
+    /* ─── NOTICE ─── */
+    .notice-box {
+      background: linear-gradient(135deg, #fff8e1, #fff3e0);
+      border: 2px solid var(--yellow-dark);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+    }
+    .notice-box h4 {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--yellow-dark);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .notice-box ul { list-style: none; }
+    .notice-box ul li {
+      font-size: 13px;
+      color: #5d4037;
+      padding: 3px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .notice-box ul li::before { content: '⚡'; font-size: 11px; padding-top: 2px; }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      background: linear-gradient(135deg, #ff6fa8, #9b59b6);
+      text-align: center;
+      padding: 30px 20px;
+      color: #fff;
+      border-radius: 24px;
+      margin-top: 32px;
+    }
+    .footer .big { font-size: 28px; margin-bottom: 8px; }
+    .footer h3 { font-size: 18px; font-weight: 900; margin-bottom: 6px; }
+    .footer p { font-size: 13px; opacity: 0.85; line-height: 1.6; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 480px) {
+      .tl-time { min-width: 60px; font-size: 11px; }
+      .tl-content strong { font-size: 13px; }
+      .day-title { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="star-row">✨ 🎀 ✨ 🎀 ✨ 🎀 ✨</div>
+  <h1>🎂 <span>나은</span> 생일 기념<br>티니핑 리조트 여행 🏨</h1>
+  <p class="hero-sub">한화리조트 설악 쏘라노 · 티니핑 프린세스룸</p>
+  <div class="badge-row">
+    <div class="badge">📅 7월 3일(금) ~ 4일(토)</div>
+    <div class="badge">📍 강원 속초</div>
+    <div class="badge">🚗 약 2시간 22분</div>
+    <div class="badge">💕 나은 &amp; 시은이와 함께</div>
+  </div>
+</div>
+<div class="wave"></div>
+
+<div class="container">
+
+  <!-- QUICK SUMMARY -->
+  <div class="sec-title">
+    <div class="icon-circle">📋</div>
+    여행 한눈에 보기
+  </div>
+  <div class="summary-grid">
+    <div class="sum-card">
+      <div class="emoji">🏨</div>
+      <div class="label">숙소</div>
+      <div class="value">설악 쏘라노<br>티니핑 프린세스룸</div>
+    </div>
+    <div class="sum-card purple">
+      <div class="emoji">🌊</div>
+      <div class="label">워터파크</div>
+      <div class="value">설악 워터피아<br>(입장권 별도)</div>
+    </div>
+    <div class="sum-card yellow">
+      <div class="emoji">🚗</div>
+      <div class="label">이동거리</div>
+      <div class="value">212km<br>2시간 22분</div>
+    </div>
+    <div class="sum-card mint">
+      <div class="emoji">🎂</div>
+      <div class="label">생일</div>
+      <div class="value">7월 4일(토)<br>나은 생일 당일!</div>
+    </div>
+  </div>
+
+  <!-- DAY 1 -->
+  <div class="sec-title">
+    <div class="icon-circle">🌸</div>
+    DAY 1 — 7월 3일 (금) 출발의 날
+  </div>
+  <div class="day-card">
+    <div class="day-header day1">
+      <div class="day-num">DAY 1</div>
+      <div>
+        <div class="day-title">🚗 두근두근 속초 출발!</div>
+        <div class="day-sub">서울 목동 → 속초 · 티니핑룸 체크인</div>
+      </div>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-time">07:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>🏠 서울 목동 출발</strong>
+          <p>양천구 목동동로 50 출발 · 한화리조트 설악 쏘라노 목적지 설정<br>통행료 약 9,800원 · 고속도로 이용 212km</p>
+          <span class="tl-tip">💡 금요일 오전 출발 → 교통 상대적으로 쾌적</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">09:30</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>🦀 속초 도착 · 점심 장보기</strong>
+          <p>속초 중앙시장에서 유명 닭강정 구경 &amp; 간식 구매<br>오징어순대, 빙수 등 속초 명물 먹방 타임!</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">10:30</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>⛵ 아바이마을 갯배 체험</strong>
+          <p>쇠줄을 당겨 강을 건너는 독특한 갯배 체험 · 아이들이 정말 좋아해요!<br>아바이순대 마을 구경</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">12:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>🍽️ 속초 점심 식사</strong>
+          <p>속초 중앙시장 또는 현지 맛집에서 가족 점심</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">13:30</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>🏖️ 속초해수욕장 / 외옹치 해안산책로</strong>
+          <p>체크인 전 바다 구경 · 맨발로 모래사장 걷기<br>외옹치바다향기로 (1.74km 해안 산책로) 가볍게 산책</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">15:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>🏨 리조트 체크인!</strong>
+          <p>한화리조트 설악 쏘라노 · 티니핑 프린세스룸 입실<br>객실 2개(온돌) + 욕실 구성</p>
+          <span class="tl-tip">💡 무료취소 6월 28일 23:59까지</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">15:00~</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>🎀 티니핑 프린세스룸 탐험!</strong>
+          <p>나은이 &amp; 시은이가 티니핑 룸에서 신나게 놀기<br>사진 찍기 · 기념 영상 촬영 · 리조트 시설 구경</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">19:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>🍽️ 저녁 식사</strong>
+          <p>리조트 내 레스토랑 또는 주변 속초 맛집 방문</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">21:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <strong>🌙 티니핑룸에서 아이들과 저녁 시간</strong>
+          <p>아이들과 티니핑 티비 보기 · 내일 워터파크 미리 기대 타임!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="sec-title">
+    <div class="icon-circle">🎂</div>
+    DAY 2 — 7월 4일 (토) 나은 생일 당일!
+  </div>
+  <div class="day-card">
+    <div class="day-header day2">
+      <div class="day-num">DAY 2</div>
+      <div>
+        <div class="day-title">🎉 생일 축하! 워터파크 GO!</div>
+        <div class="day-sub">설악 워터피아 물놀이 · 귀가</div>
+      </div>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-time">08:00</div>
+        <div class="tl-dot purple"></div>
+        <div class="tl-content">
+          <strong>🌅 기상 &amp; 생일 미니 파티!</strong>
+          <p>룸에서 나은이 생일 축하 🎂🎈<br>생일 케이크 / 선물 증정 타임 (미리 준비!)</p>
+          <span class="tl-tip">💡 작은 케이크 &amp; 폭죽 미리 준비해 가세요!</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">09:00</div>
+        <div class="tl-dot purple"></div>
+        <div class="tl-content">
+          <strong>🍳 조식</strong>
+          <p>리조트 조식 또는 간편 조식 (취사불가 객실이므로 배달/레스토랑 이용)</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">10:00</div>
+        <div class="tl-dot purple"></div>
+        <div class="tl-content">
+          <strong>💦 설악 워터피아 입장! (오픈 시간)</strong>
+          <p>강원 속초시 미시령로2983번길 111 · 033-630-5800<br>주간권으로 최대한 오래 즐기기!</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">11:00</div>
+        <div class="tl-dot purple"></div>
+        <div class="tl-content">
+          <strong>🏨 체크아웃</strong>
+          <p>프런트에 짐 맡기고 워터피아 계속 즐기기<br>(체크아웃 11:00 · 워터피아와 같은 리조트)</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">10:00~14:00</div>
+        <div class="tl-dot purple"></div>
+        <div class="tl-content">
+          <strong>🌊 신나는 물놀이!</strong>
+          <p>워터슬라이드 · 키즈풀 · 파도풀 · 스파밸리 즐기기<br>리뷰 4.33 ★ · 방문자 20,471명 검증된 명소!</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">14:30</div>
+        <div class="tl-dot purple"></div>
+        <div class="tl-content">
+          <strong>🚿 샤워 &amp; 점심 식사</strong>
+          <p>워터피아 내 식당 또는 속초 시내 점심<br>나은이 생일 특별 메뉴로!</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">16:00</div>
+        <div class="tl-dot purple"></div>
+        <div class="tl-content">
+          <strong>🚗 서울 귀가 출발</strong>
+          <p>212km · 약 2시간 22분 ~ 3시간 예상<br>토요일 오후 귀경 차량 주의</p>
+          <span class="tl-tip">💡 토요일 오후 → 서울 방향 정체 가능, 여유 있게 출발</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">19:00</div>
+        <div class="tl-dot purple"></div>
+        <div class="tl-content">
+          <strong>🏠 서울 목동 도착</strong>
+          <p>행복하고 즐거운 나은 생일 여행 완료! 🎉</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOTEL INFO -->
+  <div class="sec-title">
+    <div class="icon-circle">🏨</div>
+    숙소 상세 정보
+  </div>
+  <div class="info-card">
+    <h3>🎀 한화리조트 설악 쏘라노 · 티니핑 프린세스룸</h3>
+    <div class="info-row">
+      <span class="key">객실 타입</span>
+      <span class="val">디럭스 (티니핑 프린세스룸_호텔형)</span>
+    </div>
+    <div class="info-row">
+      <span class="key">수용 인원</span>
+      <span class="val">기준 4명 · 최대 6명(유료)</span>
+    </div>
+    <div class="info-row">
+      <span class="key">구성</span>
+      <span class="val">객실 2개(온돌) + 욕실 · 취사불가</span>
+    </div>
+    <div class="info-row">
+      <span class="key">체크인</span>
+      <span class="val">15:00</span>
+    </div>
+    <div class="info-row">
+      <span class="key">체크아웃</span>
+      <span class="val">11:00</span>
+    </div>
+    <div class="info-row">
+      <span class="key">숙박 요금</span>
+      <span class="val pink">255,715원 (1% 쿠폰 적용)</span>
+    </div>
+    <div class="info-row">
+      <span class="key">무료 취소</span>
+      <span class="val green">6월 28일(토) 23:59까지 무료취소 가능</span>
+    </div>
+    <div class="info-row">
+      <span class="key">예약처</span>
+      <span class="val">여기어때</span>
+    </div>
+    <div class="info-row">
+      <span class="key">잔여 객실</span>
+      <span class="val pink">⚠️ 2개 남음 — 빠른 예약 필요!</span>
+    </div>
+  </div>
+
+  <!-- WATERPARK INFO -->
+  <div class="sec-title">
+    <div class="icon-circle">🌊</div>
+    워터파크 입장 요금
+  </div>
+  <div class="info-card">
+    <h3>💦 한화리조트 설악 워터피아</h3>
+    <p style="font-size:12px;color:#aaa;margin-bottom:12px;">강원 속초시 미시령로2983번길 111 · ☎ 033-630-5800 · 영업 10:00~</p>
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>구분</th>
+          <th>대인</th>
+          <th>소인</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>주간권</td>
+          <td>62,000원</td>
+          <td>53,000원</td>
+        </tr>
+        <tr>
+          <td>오후권</td>
+          <td>52,500원</td>
+          <td>45,000원</td>
+        </tr>
+        <tr>
+          <td>종일권</td>
+          <td>80,000원</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td colspan="3">💡 아이 나이에 따라 소인 기준 확인 필요 · 현장 구매 or 앱 사전 구매 추천</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- NEARBY SPOTS -->
+  <div class="sec-title">
+    <div class="icon-circle">📍</div>
+    속초 주변 추천 명소 (Day 1)
+  </div>
+  <div class="spots-grid">
+    <div class="spot-card">
+      <div class="spot-icon">⛵</div>
+      <h4>아바이마을 갯배 체험</h4>
+      <p>쇠줄을 당겨 강을 건너는 독특한 갯배 체험! 아이들이 직접 줄 당기는 체험을 할 수 있어 정말 재미있어요. 드라마 촬영지로도 유명해요.</p>
+      <span class="spot-tag">아이 체험 강추</span>
+    </div>
+    <div class="spot-card">
+      <div class="spot-icon">🦀</div>
+      <h4>속초 중앙시장</h4>
+      <p>전국 유명 닭강정 맛집 거리! 오징어순대, 만석닭강정 등 속초 대표 먹거리 총집합. 구경하는 재미도 있고 간식 거리가 풍성해요.</p>
+      <span class="spot-tag">먹방 필수 코스</span>
+    </div>
+    <div class="spot-card">
+      <div class="spot-icon">🏖️</div>
+      <h4>속초해수욕장</h4>
+      <p>속초 시내 바로 옆 깨끗한 해수욕장. 체크인 전에 잠깐 들러 아이들이 바다 모래사장에서 신나게 뛰어놀기 딱 좋아요! 외옹치 해안 산책로와 연결.</p>
+      <span class="spot-tag">자유 탐방</span>
+    </div>
+  </div>
+
+  <!-- COST ESTIMATE -->
+  <div class="sec-title">
+    <div class="icon-circle">💰</div>
+    예상 비용 정리
+  </div>
+  <div class="info-card">
+    <h3>💳 여행 예상 경비 (4인 기준 / 대인 2 + 소인 2 추정)</h3>
+    <table class="price-table">
+      <thead>
+        <tr><th>항목</th><th style="text-align:right">금액</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🏨 숙박 (티니핑 프린세스룸)</td><td>255,715원</td></tr>
+        <tr><td>💦 워터피아 입장권 (대인 2 × 62,000)</td><td>124,000원</td></tr>
+        <tr><td>💦 워터피아 입장권 (소인 2 × 53,000)</td><td>106,000원</td></tr>
+        <tr><td>🚗 통행료 (왕복)</td><td>약 19,600원</td></tr>
+        <tr><td>⛽ 주유비 (왕복 424km 예상)</td><td>약 60,000원~</td></tr>
+        <tr><td>🍽️ 식비 (2일)</td><td>약 100,000원~</td></tr>
+        <tr><td>🎡 현지 체험/관광</td><td>약 20,000원~</td></tr>
+        <tr><td>🎁 나은 생일 케이크/선물 별도</td><td>별도</td></tr>
+        <tr><td><strong>🧮 예상 합계</strong></td><td><strong>약 685,000원~</strong></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:#bbb;margin-top:10px;">※ 워터파크 입장권은 사전 앱 예매 시 할인 가능. 식비/주유비는 실제 상황에 따라 변동.</p>
+  </div>
+
+  <!-- PACKING LIST -->
+  <div class="sec-title">
+    <div class="icon-circle">🎒</div>
+    준비물 체크리스트
+  </div>
+  <div class="pack-grid">
+    <div class="pack-box">
+      <h4>👧 아이들 준비물</h4>
+      <ul>
+        <li>수영복 (각자 1벌 이상)</li>
+        <li>래쉬가드 / 물안경</li>
+        <li>아쿠아 슈즈</li>
+        <li>모자 &amp; 선크림</li>
+        <li>여벌 속옷 &amp; 옷</li>
+        <li>좋아하는 장난감</li>
+        <li>멀미약 (차멀미 시)</li>
+      </ul>
+    </div>
+    <div class="pack-box">
+      <h4>🎂 생일 이벤트 준비물</h4>
+      <ul>
+        <li>미니 생일 케이크</li>
+        <li>풍선 / 페이퍼 팡팡</li>
+        <li>생일 고깔 / 왕관</li>
+        <li>나은이 선물</li>
+        <li>기념 사진 용 소품</li>
+        <li>캐릭터 티니핑 인형</li>
+      </ul>
+    </div>
+    <div class="pack-box">
+      <h4>🧴 생활 필수품</h4>
+      <ul>
+        <li>세면도구 (리조트 구비 확인)</li>
+        <li>수건 (워터파크용 여분)</li>
+        <li>방수팩 / 지퍼백</li>
+        <li>상비약 (두통약, 소화제)</li>
+        <li>간식 &amp; 물</li>
+        <li>충전기 / 보조배터리</li>
+      </ul>
+    </div>
+    <div class="pack-box">
+      <h4>📱 앱 &amp; 예약 확인</h4>
+      <ul>
+        <li>여기어때 예약 확인</li>
+        <li>워터피아 사전 예매</li>
+        <li>네이버지도 오프라인 저장</li>
+        <li>쏘라노 리조트 전화번호 저장</li>
+        <li>긴급 연락처 메모</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- NOTICE -->
+  <div class="sec-title">
+    <div class="icon-circle">⚠️</div>
+    꼭 확인하세요!
+  </div>
+  <div class="notice-box">
+    <h4>⚠️ 예약 &amp; 이동 주의사항</h4>
+    <ul>
+      <li>티니핑 프린세스룸 <strong>잔여 2개</strong> — 빠른 예약 필요!</li>
+      <li>무료취소 마감: <strong>6월 28일(토) 23:59</strong> 이전 취소 시 무료</li>
+      <li>금요일 오전 출발이라도 한강 방면 정체 예상 — 7시 이전 출발 권장</li>
+      <li>설악산 케이블카는 성수기 주말 1~2시간 대기 → Day 1 여유 시간에 포함 또는 생략</li>
+      <li>워터피아 입장권 현장 구매보다 <strong>사전 앱 예매 시 할인</strong> 가능 여부 확인</li>
+      <li>취사불가 객실이므로 식사는 리조트 식당 또는 배달 이용</li>
+    </ul>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="big">🎀💕🎂</div>
+    <h3>나은아, 생일 축하해! 해피 버스데이 🎉</h3>
+    <p>나은이와 시은이가 티니핑 프린세스룸에서<br>세상 행복한 시간 보내길 바라며 💗<br><br>
+    사랑해, 아빠 &amp; 엄마가 함께하는 특별한 생일 여행!</p>
+  </div>
+
+</div>
+</body>
+</html>
