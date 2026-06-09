@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>국민연금과 코스피 — 지금 당신의 투자 전략</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;700&display=swap');
+
+    :root {
+      --red:    #e03131;
+      --blue:   #1971c2;
+      --green:  #2f9e44;
+      --orange: #e67700;
+      --dark:   #1a1a2e;
+      --mid:    #2d2d44;
+      --soft:   #f8f9fc;
+      --border: #e8eaf0;
+      --text:   #2c2c3e;
+      --muted:  #6c6c88;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f0f2f8;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #0f0c29 0%, #1a1a4e 50%, #24243e 100%);
+      color: #fff;
+      padding: 60px 24px 50px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 70% 30%, rgba(41,182,246,.15) 0%, transparent 60%),
+                  radial-gradient(circle at 20% 80%, rgba(224,49,49,.10) 0%, transparent 50%);
+    }
+    .header-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: #a8d8ff;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .header h1 {
+      font-family: 'Noto Serif KR', serif;
+      font-size: clamp(26px, 5vw, 42px);
+      font-weight: 700;
+      line-height: 1.3;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .header h1 span { color: #ffd43b; }
+    .header-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,.65);
+      position: relative;
+    }
+    .header-meta {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 28px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+    .header-meta span {
+      font-size: 12px;
+      color: rgba(255,255,255,.5);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .header-meta strong { color: rgba(255,255,255,.85); }
+
+    /* ── CONTAINER ── */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 16px 80px;
+    }
+
+    /* ── ALERT BOX ── */
+    .alert {
+      background: #fff3cd;
+      border-left: 4px solid #e67700;
+      border-radius: 0 10px 10px 0;
+      padding: 16px 20px;
+      margin: 32px 0;
+      font-size: 14px;
+      color: #5f3d00;
+    }
+    .alert strong { display: block; font-size: 15px; margin-bottom: 4px; }
+
+    /* ── SECTION TITLE ── */
+    .section {
+      margin-top: 48px;
+    }
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .section-label::before {
+      content: '';
+      display: inline-block;
+      width: 18px; height: 2px;
+      background: currentColor;
+    }
+    .section h2 {
+      font-family: 'Noto Serif KR', serif;
+      font-size: clamp(20px, 4vw, 26px);
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .card-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .icon-red    { background: #fff5f5; }
+    .icon-blue   { background: #e7f5ff; }
+    .icon-green  { background: #ebfbee; }
+    .icon-orange { background: #fff9db; }
+    .icon-purple { background: #f3f0ff; }
+
+    .card-title { font-size: 17px; font-weight: 700; }
+    .card-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── TIMELINE ── */
+    .timeline {
+      background: var(--dark);
+      border-radius: 14px;
+      padding: 24px 28px;
+      color: #e8eaf0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.9;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .timeline .tl-date { color: #ffd43b; font-weight: 700; }
+    .timeline .tl-arrow { color: #74c0fc; }
+    .timeline .tl-warn  { color: #ff8787; }
+    .timeline .tl-ok    { color: #69db7c; }
+    .timeline .tl-dim   { color: #666888; }
+
+    /* ── TABLE ── */
+    .tbl-wrap { overflow-x: auto; margin: 16px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    thead th {
+      background: var(--soft);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .5px;
+      border-bottom: 2px solid var(--border);
+    }
+    tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #fafbff; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .tag-red    { background: #fff5f5; color: var(--red); }
+    .tag-green  { background: #ebfbee; color: var(--green); }
+    .tag-orange { background: #fff9db; color: var(--orange); }
+    .tag-blue   { background: #e7f5ff; color: var(--blue); }
+
+    /* ── STAT BOXES ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin: 20px 0;
+    }
+    .stat-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 18px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .stat-label { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .num-red    { color: var(--red); }
+    .num-blue   { color: var(--blue); }
+    .num-green  { color: var(--green); }
+    .num-orange { color: var(--orange); }
+
+    /* ── CHECKLIST ── */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .check-icon {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #e7f5ff;
+      color: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── QUOTE / SUMMARY ── */
+    .summary-box {
+      background: linear-gradient(135deg, var(--dark) 0%, #1a1a4e 100%);
+      border-radius: 20px;
+      padding: 36px 32px;
+      color: #fff;
+      margin-top: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .summary-box::before {
+      content: '❝';
+      position: absolute;
+      top: -10px; left: 20px;
+      font-size: 100px;
+      color: rgba(255,255,255,.05);
+      font-family: serif;
+      line-height: 1;
+    }
+    .summary-box h3 {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 20px;
+      color: #ffd43b;
+      margin-bottom: 14px;
+    }
+    .summary-box p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: rgba(255,255,255,.85);
+    }
+    .summary-box p strong { color: #ffd43b; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+
+    /* ── PHASE BAR ── */
+    .phase-bar {
+      display: flex;
+      gap: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 20px 0;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .phase-item {
+      flex: 1;
+      padding: 10px 8px;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .phase-now    { background: #e03131; color: #fff; }
+    .phase-warn   { background: #ff8787; color: #fff; }
+    .phase-wait   { background: #ffd43b; color: #5f3d00; }
+    .phase-buy    { background: #2f9e44; color: #fff; }
+    .phase-label  { font-size: 10px; opacity: .8; margin-top: 2px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+    .footer strong { color: var(--text); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px; }
+      .summary-box { padding: 28px 20px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<div class="header">
+  <div class="header-badge">MARKET INSIGHT · 2026.06.08</div>
+  <h1>국민연금이 팔 수 없었던 이유,<br><span>이제 팔기 시작한다</span></h1>
+  <p class="header-sub">선거가 끝났다. 143조원의 압력이 시장으로 돌아오고 있다.</p>
+  <div class="header-meta">
+    <span>📅 <strong>2026년 6월 8일</strong></span>
+    <span>🎯 <strong>개인투자자 전략 레터</strong></span>
+    <span>📊 <strong>국민연금 리밸런싱 분석</strong></span>
+  </div>
+</div>
+
+<!-- ════════════════ BODY ════════════════ -->
+<div class="container">
+
+  <div class="alert">
+    <strong>⚠️ 이 레터를 읽어야 하는 이유</strong>
+    국민연금은 지난 5월 28일 — 지방선거 <strong>6일 전</strong> — 코스피 매도폭탄을 막기 위해 목표비중을 전격 상향했다.
+    선거가 끝난 지금, 유예됐던 리밸런싱이 6월 말 재개된다. 역사적으로 지방선거 이후 코스피는 한 달 안에 평균 <strong>–2.95%</strong> 하락했다.
+  </div>
+
+  <!-- ── 상황 이해 ── -->
+  <div class="section">
+    <div class="section-label">SITUATION</div>
+    <h2>지금 시장에서 무슨 일이 일어나고 있나</h2>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-num num-red">143조</div>
+        <div class="stat-label">국민연금<br>잔여 매도 압력</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num num-orange">6월 말</div>
+        <div class="stat-label">리밸런싱 유예<br>종료 시점</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num num-blue">49%</div>
+        <div class="stat-label">코스피에서 삼성전자<br>+하이닉스 비중</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num num-green">–2.95%</div>
+        <div class="stat-label">역대 지방선거 후<br>한 달 평균 하락률</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div><span class="tl-date">2026년 초</span>  <span class="tl-arrow">→</span> 코스피 5,000 → 8,000 급등 (AI·상법개정·반도체 슈퍼사이클)</div>
+      <div><span class="tl-date">1월~5월  </span>  <span class="tl-arrow">→</span> 국민연금 국내주식 비중 <span class="tl-warn">30%</span> 육박 (목표 14.9% 초과)</div>
+      <div><span class="tl-date">5월 28일 </span>  <span class="tl-arrow">→</span> 기금운용위 "목표비중 <span class="tl-ok">20.8%</span>로 상향" 발표 (리밸런싱 유예)</div>
+      <div><span class="tl-dim">         </span>     삼성전자 장중 +7% 급등, SK하이닉스 폭등</div>
+      <div><span class="tl-date">6월 3일  </span>  <span class="tl-arrow">→</span> <span class="tl-warn">제9회 전국동시지방선거</span></div>
+      <div><span class="tl-date">6월 말   </span>  <span class="tl-arrow">→</span> <span class="tl-warn">리밸런싱 유예 종료 → 매도 재개 시작</span></div>
+      <div><span class="tl-date">7월~     </span>  <span class="tl-arrow">→</span> 국민연금 완만한 매도 + 2분기 실적 시즌</div>
+    </div>
+
+    <div class="card">
+      <p style="font-size:14px; color:var(--muted);">
+        <strong style="color:var(--text);">핵심 구조를 이해하자.</strong><br><br>
+        국민연금이 코스피를 올린 게 아니다. 코스피가 먼저 올랐고, 국민연금 보유 비중이 자동으로 팽창했다.
+        문제는 원칙대로라면 177조원을 팔아야 했는데 <em>선거 6일 전에 목표비중을 바꿔서</em> 매도를 막았다는 것이다.
+        문화일보·서울경제 사설과 야당 모두 "선거를 의식한 정치적 결정"이라고 비판했고, 기금운용위는 부인했다.
+        <br><br>
+        회의록은 <strong>2030년까지 비공개</strong>다. 진실은 알 수 없다. 하지만 우리가 집중해야 할 것은 진실이 아니라 <strong>방향</strong>이다.
+        지금 방향은 하나다 — <strong style="color:var(--red);">국민연금이 판다.</strong>
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 전략 페이즈 ── -->
+  <div class="section">
+    <div class="section-label">PHASE</div>
+    <h2>지금 우리는 어느 국면에 있나</h2>
+
+    <div class="phase-bar">
+      <div class="phase-item phase-now">
+        📍 지금<br><span class="phase-label">경계 구간<br>6월 초~중</span>
+      </div>
+      <div class="phase-item phase-warn">
+        ⚠️ 위험<br><span class="phase-label">매도 압력<br>6월 말</span>
+      </div>
+      <div class="phase-item phase-wait">
+        ⏳ 대기<br><span class="phase-label">조정 심화<br>7월 초</span>
+      </div>
+      <div class="phase-item phase-buy">
+        ✅ 매수<br><span class="phase-label">저점 포착<br>7월 중~후</span>
+      </div>
+    </div>
+
+    <p style="font-size:13px; color:var(--muted); margin-top:8px;">
+      ※ 과거 지방선거 이후 하락 패턴 기반 (2000년 이후 거의 매번 반복). 실적·글로벌 변수에 따라 달라질 수 있음.
+    </p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 전략 A ── -->
+  <div class="section">
+    <div class="section-label">STRATEGY A</div>
+    <h2>방어: 국민연금 매도 1순위에서 빠져나와라</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-red">🎯</div>
+        <div>
+          <div class="card-title">지금 비중을 줄여야 할 종목·섹터</div>
+          <div class="card-subtitle">국민연금 포트폴리오 비중 大 + 주가 많이 오른 것</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>종목 / 섹터</th>
+              <th>리스크 이유</th>
+              <th>위험도</th>
+              <th>대응</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>삼성전자 · SK하이닉스</strong></td>
+              <td>국민연금 국내주식의 54% 집중<br>코스피 비중의 49%</td>
+              <td><span class="tag tag-red">최고</span></td>
+              <td>단기 비중 축소<br>분할 매도 고려</td>
+            </tr>
+            <tr>
+              <td><strong>방산</strong><br>한화에어로스페이스 등</td>
+              <td>2026년 최대 급등 섹터<br>차익실현 1순위</td>
+              <td><span class="tag tag-red">높음</span></td>
+              <td>상승분 일부 익절</td>
+            </tr>
+            <tr>
+              <td><strong>조선</strong><br>HD현대중공업 등</td>
+              <td>동일 — 급등 후 평가액 비중 급증</td>
+              <td><span class="tag tag-red">높음</span></td>
+              <td>동일</td>
+            </tr>
+            <tr>
+              <td><strong>금융지주</strong><br>KB·신한·하나·우리</td>
+              <td>밸류업 수혜로 주가 상승<br>보유 비중 증가</td>
+              <td><span class="tag tag-orange">중간</span></td>
+              <td>일부 차익실현</td>
+            </tr>
+            <tr>
+              <td><strong>코스피 대형주 ETF</strong><br>KODEX 200 등</td>
+              <td>국민연금 매도 → 인덱스 동반 하락</td>
+              <td><span class="tag tag-orange">중간</span></td>
+              <td>포지션 점검</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin-top:12px;">
+        💡 국민연금은 종목을 가리지 않고 <strong>비중이 큰 대형주 위주</strong>로 매도합니다.
+        일일 한도를 낮춰서 천천히 팔겠다고 했지만, <strong>방향은 매도</strong>입니다.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── 전략 B ── -->
+  <div class="section">
+    <div class="section-label">STRATEGY B</div>
+    <h2>공략: 국민연금이 <em>사고 있는</em> 종목으로 이동</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-green">📈</div>
+        <div>
+          <div class="card-title">국민연금이 3~5월 적극 매수한 중소형주</div>
+          <div class="card-subtitle">지분율 3~8%에서 10~13%로 급격히 확대 중</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>종목</th>
+              <th>지분율 변화</th>
+              <th>투자 배경</th>
+              <th>성격</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>테스</strong></td>
+              <td>3.0% → <strong>10.0%</strong> <br><small>(+7.0%p)</small></td>
+              <td>반도체 전공정 장비<br>AI 인프라 수요 증가</td>
+              <td><span class="tag tag-blue">반도체 부품</span></td>
+            </tr>
+            <tr>
+              <td><strong>한국카본</strong></td>
+              <td>3.8% → <strong>10.6%</strong><br><small>(+6.8%p)</small></td>
+              <td>친환경 소재<br>에너지 테마</td>
+              <td><span class="tag tag-green">소재</span></td>
+            </tr>
+            <tr>
+              <td><strong>대주전자재료</strong></td>
+              <td>3.5% → <strong>10.1%</strong><br><small>(+6.5%p)</small></td>
+              <td>이차전지 실리콘 음극재<br>기술 경쟁력</td>
+              <td><span class="tag tag-green">배터리 소재</span></td>
+            </tr>
+            <tr>
+              <td><strong>대덕전자</strong></td>
+              <td>7.5% → <strong>13.4%</strong><br><small>(+5.9%p)</small></td>
+              <td>반도체 차세대 패키징<br>AI 서버 수요</td>
+              <td><span class="tag tag-blue">반도체 부품</span></td>
+            </tr>
+            <tr>
+              <td><strong>OCI홀딩스</strong></td>
+              <td>7.8% → <strong>13.3%</strong><br><small>(+5.5%p)</small></td>
+              <td>폴리실리콘·AI 에너지<br>인프라 수요</td>
+              <td><span class="tag tag-orange">에너지</span></td>
+            </tr>
+            <tr>
+              <td><strong>LX인터내셔널</strong></td>
+              <td>8.74% → <strong>10.12%</strong><br><small>(+1.38%p)</small></td>
+              <td>가치주 매수<br>평균단가 47,258원</td>
+              <td><span class="tag tag-orange">가치주</span></td>
+            </tr>
+            <tr>
+              <td><strong>이수페타시스</strong></td>
+              <td>지분 확대 중</td>
+              <td>AI 서버용 기판<br>고부가가치 PCB</td>
+              <td><span class="tag tag-blue">반도체 부품</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin-top:12px;">
+        ⚠️ 중소형주 특성상 변동성이 큽니다. 분할 매수 필수. 국민연금이 사고 있다는 건 <strong>안전하다는 의미가 아니라 방향이 같다는 의미</strong>입니다.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── 전략 C ── -->
+  <div class="section">
+    <div class="section-label">STRATEGY C</div>
+    <h2>타이밍: 언제 팔고, 언제 다시 살 것인가</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-orange">⏱️</div>
+        <div>
+          <div class="card-title">역사적 패턴으로 본 매매 타이밍</div>
+          <div class="card-subtitle">2000년 이후 지방선거 후 코스피 데이터 기반</div>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>선거 후 시점</th>
+              <th>코스피 평균</th>
+              <th>최악 사례</th>
+              <th>전략</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>다음날</td>
+              <td><span style="color:var(--red);">▼ 하락</span> (10회 중 9회)</td>
+              <td>2018년 –1.84%</td>
+              <td>보유 중이면 관망</td>
+            </tr>
+            <tr>
+              <td>7일 후</td>
+              <td><span style="color:var(--red);">평균 –1.41%</span></td>
+              <td>–</td>
+              <td>현금 비율 확보 유지</td>
+            </tr>
+            <tr>
+              <td><strong>한 달 후</strong></td>
+              <td><span style="color:var(--red);"><strong>평균 –2.95%</strong></span></td>
+              <td>2022년 –13.3%</td>
+              <td><strong>분할 매수 시작 검토</strong></td>
+            </tr>
+            <tr>
+              <td>3개월 이후</td>
+              <td>경제 펀더멘털로 결정</td>
+              <td>–</td>
+              <td>AI·반도체 실적 재확인 후</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="background:var(--soft); border-radius:10px; padding:16px 20px; margin-top:16px;">
+        <p style="font-size:14px;"><strong>📌 실행 원칙</strong></p>
+        <p style="font-size:14px; margin-top:8px; color:var(--muted); line-height:1.8;">
+          지금 보유 중인 대형주의 <strong>20~30% 현금화</strong> → 6월 말~7월 조정 시 반도체·대형주 재매수
+          <br>국민연금이 사고 있는 중소형 테마주는 <strong>분할 매수로 선취</strong> 가능
+          <br>7월 실적 시즌에서 삼성전자·하이닉스 어닝서프라이즈 시 재매수 기회
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 전략 D ── -->
+  <div class="section">
+    <div class="section-label">STRATEGY D</div>
+    <h2>헤지: 하락을 수익으로 전환하는 도구</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-purple">🛡️</div>
+        <div>
+          <div class="card-title">시장 하락 대비 헤지 수단</div>
+          <div class="card-subtitle">포지션 일부 보호용 — 메인 전략이 아님</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>방법</th>
+              <th>내용</th>
+              <th>장점</th>
+              <th>주의사항</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>KODEX 인버스 ETF</strong></td>
+              <td>코스피 하락 시 수익 발생</td>
+              <td>진입 쉬움, 소액 가능</td>
+              <td>장기 보유 시 가치 소멸<br>단기 헤지용만</td>
+            </tr>
+            <tr>
+              <td><strong>달러 비중 확대</strong></td>
+              <td>국민연금이 주식 팔면<br>외화 재투자 → 원화 약세 가능</td>
+              <td>환율 헤지 동시 효과</td>
+              <td>환율 방향 불확실성 존재</td>
+            </tr>
+            <tr>
+              <td><strong>배당주·채권형 ETF</strong></td>
+              <td>낙폭 제한 + 인컴 수익</td>
+              <td>변동성 낮음</td>
+              <td>금융지주는 국민연금<br>매도 대상이기도 함</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 모니터링 포인트 ── -->
+  <div class="section">
+    <div class="section-label">MONITOR</div>
+    <h2>이 신호를 보면 전략을 수정하라</h2>
+
+    <div class="card">
+      <ul class="checklist">
+        <li>
+          <div class="check-icon">①</div>
+          <div>
+            <strong>DART 공시 실시간 확인</strong><br>
+            <span style="font-size:13px; color:var(--muted);">dart.fss.or.kr → 국민연금 지분 1% 이상 변동 공시 → 어느 종목을 팔기 시작했는지 가장 빠른 공식 신호</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-icon">②</div>
+          <div>
+            <strong>삼성전자 일봉 거래량</strong><br>
+            <span style="font-size:13px; color:var(--muted);">국민연금 매도가 나오면 주가 하락 + 거래량 증가 패턴. 평소 대비 2배 이상 거래량에 하락하면 리밸런싱 시작 신호</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-icon">③</div>
+          <div>
+            <strong>외국인 순매수/순매도 규모</strong><br>
+            <span style="font-size:13px; color:var(--muted);">외국인은 이미 2조원 매도 중. 국민연금과 외국인이 동시에 팔면 하락 가속. KRX 투자자별 매매동향 일간 확인 필수</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-icon">④</div>
+          <div>
+            <strong>7월 실적 시즌 어닝서프라이즈 여부</strong><br>
+            <span style="font-size:13px; color:var(--muted);">삼성전자·SK하이닉스 2분기 실적이 시장 예상 초과 시 → 국민연금 매도에도 주가 방어 가능. 실적 발표일 전후 변동성 확대 예상</span>
+          </div>
+        </li>
+        <li>
+          <div class="check-icon">⑤</div>
+          <div>
+            <strong>코스피 28.8% 허용상단 초과 여부</strong><br>
+            <span style="font-size:13px; color:var(--muted);">국민연금 허용상단이 28.8%로 완화됐지만 현재 비중이 이를 초과하면 강제 매도. 비중 데이터는 fund.nps.or.kr에서 월별 확인</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── 반도체 특이사항 ── -->
+  <div class="section">
+    <div class="section-label">SPECIAL FOCUS</div>
+    <h2>반도체주 — 팔리는데 왜 빠지지 않을 수 있나</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-blue">💻</div>
+        <div>
+          <div class="card-title">반도체 대형주의 역설</div>
+          <div class="card-subtitle">매도 1순위지만 AI 펀더멘털이 받쳐준다</div>
+        </div>
+      </div>
+      <p style="font-size:14px; color:var(--muted); line-height:1.8; margin-bottom:16px;">
+        SK하이닉스의 2026년 영업이익은 전년 대비 약 <strong>7배</strong> 증가 전망. AI 서버 수요로 HBM 단가가 지속 상승 중이다.
+        국민연금이 팔더라도 외국인·기관이 사줄 수 있는 구조다.
+      </p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div style="background:#fff5f5; border-radius:10px; padding:14px;">
+          <p style="font-size:12px; font-weight:700; color:var(--red); margin-bottom:6px;">⬇️ 하락 요인</p>
+          <ul style="font-size:13px; color:var(--text); padding-left:16px; line-height:2;">
+            <li>국민연금 143조 매도 압력</li>
+            <li>외국인 리밸런싱 매도 진행 중</li>
+            <li>코스피 비중의 49% 집중 부담</li>
+            <li>선거 후 조정 패턴 역사 반복</li>
+          </ul>
+        </div>
+        <div style="background:#ebfbee; border-radius:10px; padding:14px;">
+          <p style="font-size:12px; font-weight:700; color:var(--green); margin-bottom:6px;">⬆️ 방어 요인</p>
+          <ul style="font-size:13px; color:var(--text); padding-left:16px; line-height:2;">
+            <li>AI·HBM 수요 지속 증가</li>
+            <li>반도체 영업이익 7배 증가 전망</li>
+            <li>일일 매도 한도 축소 규칙 적용</li>
+            <li>7월 실적 어닝서프라이즈 가능</li>
+          </ul>
+        </div>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin-top:14px;">
+        → <strong>급락보다는 완만한 조정</strong>이 예상되지만, 단기 변동성은 높다.
+        보유자라면 익절 라인을 명확히 하고, 신규 진입은 7월 조정 후가 더 유리하다.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── 최종 요약 ── -->
+  <div class="summary-box">
+    <h3>📌 한 줄 전략 결론</h3>
+    <p>
+      <strong>지금은 대형주·반도체 비중을 줄이고 현금을 확보할 타이밍.</strong><br>
+      6월 말 리밸런싱 재개 + 역사적 선거 후 하락 패턴이 겹치는 구간이다.<br><br>
+      <strong>7월 조정이 오면</strong> 국민연금이 이미 사고 있는 중소형 AI 소재·부품주와
+      하락한 반도체 대형주에 <strong>분할 재진입</strong>하는 전략이 유효하다.<br><br>
+      핵심 모니터링은 <strong>DART 국민연금 공시</strong>와 <strong>삼성전자 일봉 거래량</strong>.
+      이 두 가지가 움직이면 시장이 본격 조정에 들어간 신호다.
+    </p>
+  </div>
+
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<div class="footer">
+  <p><strong>데이터 출처</strong></p>
+  <p style="margin-top:6px; line-height:2;">
+    국민연금기금운용본부 fund.nps.or.kr &nbsp;·&nbsp;
+    DART 전자공시시스템 dart.fss.or.kr &nbsp;·&nbsp;
+    한국거래소 data.krx.co.kr<br>
+    머니투데이 · 문화일보 · 서울경제 · MBC뉴스 · 시사저널e · 뉴시스
+  </p>
+  <p style="margin-top:16px; color:#aaa; font-size:11px;">
+    ⚠️ 이 레터는 투자 참고용 정보이며 투자 권유가 아닙니다. 모든 투자 결정과 책임은 투자자 본인에게 있습니다.
+  </p>
+</div>
+
+</body>
+</html>
