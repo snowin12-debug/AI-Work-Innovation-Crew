@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>시편 읽어주기 (31~33편)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f0f4ff;
+      --card: #ffffff;
+      --primary: #3b5bdb;
+      --primary-dark: #2f4ac4;
+      --primary-light: #dbe4ff;
+      --gold: #f59f00;
+      --gold-light: #fff3cd;
+      --green: #2f9e44;
+      --red: #e03131;
+      --red-light: #ffe0e0;
+      --text: #212529;
+      --muted: #868e96;
+      --border: #dee2e6;
+      --radius: 18px;
+      --shadow: 0 8px 32px rgba(59,91,219,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, #5c7cfa 100%);
+      color: white; text-align: center;
+      padding: 22px 16px 18px;
+      box-shadow: 0 4px 16px rgba(59,91,219,0.35);
+    }
+    header h1 { font-size: 1.7em; font-weight: 900; letter-spacing: -0.5px; }
+    header p { font-size: 0.88em; opacity: 0.85; margin-top: 5px; }
+
+    main { max-width: 600px; margin: 0 auto; padding: 16px; }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 18px;
+      font-weight: 700; font-size: 0.97em;
+      border-bottom: 2px solid #f1f3f5;
+      background: #f8f9ff;
+    }
+    .card-body { padding: 16px; }
+
+    /* 시편 선택 버튼 */
+    .psalm-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .psalm-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 18px 8px;
+      border-radius: 14px;
+      border: 2.5px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s;
+      gap: 6px;
+    }
+    .psalm-btn:active { transform: scale(0.95); }
+    .psalm-btn .num { font-size: 1.5em; font-weight: 900; color: var(--primary); line-height: 1; }
+    .psalm-btn .label { font-size: 0.82em; color: var(--muted); font-weight: 500; }
+    .psalm-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 4px 12px rgba(59,91,219,0.2);
+    }
+    .psalm-btn.active .label { color: var(--primary); }
+
+    /* 텍스트 표시 */
+    #text-display {
+      background: #f8f9ff;
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 1.13em;
+      line-height: 2;
+      min-height: 120px;
+      word-break: keep-all;
+      border: 2px solid var(--primary-light);
+      color: var(--text);
+    }
+    #text-display.empty { color: var(--muted); font-size: 0.95em; line-height: 1.7; text-align: center; padding-top: 32px; }
+    .word {
+      display: inline;
+      border-radius: 4px;
+      padding: 2px 1px;
+      transition: background 0.12s;
+      cursor: pointer;
+    }
+    .word.active { background: var(--gold-light); color: #7c5200; font-weight: 700; }
+
+    /* TTS 컨트롤 */
+    .tts-controls { display: flex; gap: 10px; margin-top: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 20px;
+      border-radius: 50px;
+      border: none;
+      font-family: inherit; font-weight: 700; font-size: 0.97em;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; }
+    .btn-play  { background: var(--primary); color: white; flex: 1; box-shadow: 0 4px 12px rgba(59,91,219,0.3); }
+    .btn-play:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-pause { background: var(--gold-light); color: #7c5200; border: 2px solid var(--gold); }
+    .btn-pause:hover:not(:disabled) { background: #ffe8a1; }
+    .btn-stop  { background: var(--red-light); color: var(--red); border: 2px solid #ffa8a8; }
+    .btn-stop:hover:not(:disabled) { background: #ffc9c9; }
+
+    /* 속도 컨트롤 */
+    .speed-control {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 12px;
+      background: #f1f3f5; border-radius: 12px; padding: 10px 14px;
+    }
+    .speed-control label { font-size: 0.83em; font-weight: 700; color: #555; white-space: nowrap; }
+    .speed-control input[type=range] { flex: 1; accent-color: var(--primary); height: 5px; }
+    .speed-control span { font-size: 0.88em; font-weight: 700; color: var(--primary); min-width: 34px; text-align: right; }
+
+    /* 상태 배지 */
+    .status-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; min-height: 24px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 50px;
+      font-size: 0.78em; font-weight: 700;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: #d3f9d8; color: var(--green); }
+    .badge-playing { background: #fff3cd; color: #7c5200; }
+
+    /* 안내 */
+    .info-box {
+      background: var(--primary-light);
+      border-radius: 12px; padding: 13px 16px;
+      font-size: 0.86em; color: var(--primary); line-height: 1.6;
+    }
+    .info-box strong { font-weight: 700; }
+
+    /* 지원 안내 */
+    .support-note {
+      text-align: center; font-size: 0.8em; color: var(--muted);
+      padding: 8px 0 20px;
+    }
+
+    @media (max-width: 420px) {
+      header h1 { font-size: 1.45em; }
+      .psalm-btn .num { font-size: 1.3em; }
+      .btn { font-size: 0.9em; padding: 11px 14px; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>✝️ 시편 읽어주기</h1>
+  <p>31편 · 32편 · 33편 — 말씀을 음성으로 들으세요</p>
+</header>
+
+<main>
+  <!-- 시편 선택 -->
+  <div class="card">
+    <div class="card-header">📖 시편 선택</div>
+    <div class="card-body">
+      <div class="psalm-grid">
+        <button class="psalm-btn" id="btn-31" onclick="selectPsalm('31')">
+          <span class="num">31</span>
+          <span class="label">시편 31편</span>
+        </button>
+        <button class="psalm-btn" id="btn-32" onclick="selectPsalm('32')">
+          <span class="num">32</span>
+          <span class="label">시편 32편</span>
+        </button>
+        <button class="psalm-btn" id="btn-33" onclick="selectPsalm('33')">
+          <span class="num">33</span>
+          <span class="label">시편 33편</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 본문 & TTS -->
+  <div class="card">
+    <div class="card-header">🔊 본문 및 읽기</div>
+    <div class="card-body">
+      <div class="status-row">
+        <span id="chapter-label" style="font-weight:700; font-size:0.95em; color:var(--primary);"></span>
+        <span id="status-badge"></span>
+      </div>
+
+      <div id="text-display" class="empty">
+        위에서 시편을 선택하면<br/>본문이 표시되고 음성으로 읽어줍니다.
+      </div>
+
+      <div class="tts-controls">
+        <button class="btn btn-play" id="play-btn" onclick="playTTS()" disabled>▶ 읽기 시작</button>
+        <button class="btn btn-pause" id="pause-btn" onclick="pauseTTS()" disabled>⏸</button>
+        <button class="btn btn-stop"  id="stop-btn"  onclick="stopTTS()"  disabled>⏹</button>
+      </div>
+
+      <div class="speed-control">
+        <label>🐢 속도</label>
+        <input type="range" id="speed-range" min="0.5" max="1.8" step="0.05" value="0.9" oninput="updateSpeed(this.value)" />
+        <span id="speed-label">0.90×</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 안내 -->
+  <div class="card">
+    <div class="card-body">
+      <div class="info-box">
+        <strong>💡 사용 안내</strong><br/>
+        · 시편 버튼을 누르면 본문이 나타납니다<br/>
+        · <strong>읽기 시작</strong>을 누르면 한국어 음성으로 읽어줍니다<br/>
+        · 본문의 단어를 직접 눌러 원하는 위치부터 읽을 수 있습니다<br/>
+        · 볼륨은 기기 볼륨 버튼으로 조절하세요
+      </div>
+    </div>
+  </div>
+
+  <p class="support-note">Chrome · Safari · Edge 모바일 지원 · 인터넷 연결 불필요</p>
+</main>
+
+<script>
+  const PSALMS = {
+    '31': {
+      title: '시편 31편',
+      text: `여호와여 내가 주께 피하오니 나를 영원히 부끄럽게 하지 마시고 주의 공의로 나를 건지소서. 내게 귀를 기울여 속히 건지시고 내게 견고한 바위와 구원하는 산성이 되소서. 주는 나의 반석과 산성이시니 그러므로 주의 이름을 생각하셔서 나를 인도하시고 지도하소서. 그들이 나를 위하여 비밀히 친 그물에서 빼내소서 주는 나의 산성이시니이다. 내가 나의 영을 주의 손에 부탁하나이다 진리의 하나님 여호와여 나를 구속하셨나이다.`
+    },
+    '32': {
+      title: '시편 32편',
+      text: `허물의 사함을 받고 자신의 죄가 가려진 자는 복이 있도다. 마음에 간사함이 없고 여호와께 정죄를 당하지 아니하는 자는 복이 있도다. 내가 토설하지 아니할 때에 종일 신음하므로 내 뼈가 쇠하였도다. 주의 손이 주야로 나를 누르시오니 내 진액이 빠져서 여름 가뭄에 마름 같이 되었나이다 셀라. 내가 이르기를 내 허물을 여호와께 자복하리라 하고 주께 내 죄를 아뢰고 내 죄악을 숨기지 아니하였더니 곧 주께서 내 죄악을 사하셨나이다 셀라.`
+    },
+    '33': {
+      title: '시편 33편',
+      text: `너희 의인들아 여호와를 즐거워하라 찬송은 정직한 자들이 마땅히 할 바로다. 수금으로 여호와께 감사하고 열 줄 비파로 찬송할지어다. 새 노래로 그를 노래하며 즐거운 소리로 아름답게 연주할지어다. 여호와의 말씀은 정직하며 그가 행하시는 일은 다 진실하시도다. 그는 공의와 정의를 사랑하심이여 세상에는 여호와의 인자하심이 충만하도다.`
+    }
+  };
+
+  let currentPsalm = null;
+  let words = [], wordSpans = [];
+  let ttsActive = false, ttsPaused = false;
+  let currentUtterance = null;
+  let readingSpeed = 0.9;
+  let wordBoundarySupported = false;
+  let currentWordIdx = 0;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance('');
+      wordBoundarySupported = 'onboundary' in u;
+    }
+    // iOS Safari: voices load asynchronously
+    window.speechSynthesis.onvoiceschanged = () => {};
+  });
+
+  function selectPsalm(id) {
+    if (currentPsalm === id && ttsActive) return;
+    stopTTS();
+    currentPsalm = id;
+
+    document.querySelectorAll('.psalm-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + id).classList.add('active');
+
+    const psalm = PSALMS[id];
+    document.getElementById('chapter-label').textContent = psalm.title;
+    setStatus('selected');
+    renderText(psalm.text);
+    document.getElementById('play-btn').disabled = false;
+  }
+
+  function renderText(text) {
+    const display = document.getElementById('text-display');
+    display.classList.remove('empty');
+    display.innerHTML = '';
+    words = [];
+    wordSpans = [];
+
+    const tokens = text.split(/(\s+)/);
+    tokens.forEach(token => {
+      if (/^\s+$/.test(token)) {
+        display.appendChild(document.createTextNode(token));
+      } else {
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = token;
+        const idx = wordSpans.length;
+        span.onclick = () => { stopTTS(); setTimeout(() => startReading(idx), 80); };
+        display.appendChild(span);
+        wordSpans.push(span);
+        words.push(token);
+      }
+    });
+  }
+
+  function playTTS() {
+    if (!currentPsalm) return;
+    if (ttsPaused && currentUtterance) {
+      window.speechSynthesis.resume();
+      ttsPaused = false;
+      setStatus('playing');
+      updateButtons(true);
+      return;
+    }
+    stopTTS();
+    startReading(0);
+  }
+
+  function startReading(startIdx) {
+    if (wordSpans.length === 0) return;
+    clearHighlights();
+    currentWordIdx = startIdx;
+
+    const chunk = wordSpans.slice(startIdx).map(s => s.textContent).join(' ');
+    if (!chunk.trim()) return;
+
+    currentUtterance = new SpeechSynthesisUtterance(chunk);
+    currentUtterance.lang = 'ko-KR';
+    currentUtterance.rate = readingSpeed;
+
+    // 음성 선택: 한국어 음성 우선
+    const voices = window.speechSynthesis.getVoices();
+    const koVoice = voices.find(v => v.lang.startsWith('ko'));
+    if (koVoice) currentUtterance.voice = koVoice;
+
+    if (wordBoundarySupported) {
+      currentUtterance.onboundary = (e) => {
+        if (e.name === 'word') {
+          clearHighlights();
+          if (currentWordIdx < wordSpans.length) {
+            wordSpans[currentWordIdx].classList.add('active');
+            wordSpans[currentWordIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            currentWordIdx++;
+          }
+        }
+      };
+    }
+
+    currentUtterance.onstart = () => {
+      ttsActive = true; ttsPaused = false;
+      setStatus('playing'); updateButtons(true);
+    };
+    currentUtterance.onend = () => {
+      ttsActive = false; ttsPaused = false; currentUtterance = null;
+      clearHighlights(); setStatus('done'); updateButtons(false);
+    };
+    currentUtterance.onerror = (e) => {
+      if (e.error === 'interrupted') return;
+      ttsActive = false; ttsPaused = false;
+      clearHighlights(); setStatus('selected'); updateButtons(false);
+    };
+
+    window.speechSynthesis.speak(currentUtterance);
+  }
+
+  function pauseTTS() {
+    if (ttsActive && !ttsPaused) {
+      window.speechSynthesis.pause();
+      ttsPaused = true;
+      setStatus('paused');
+      document.getElementById('pause-btn').textContent = '▶ 계속';
+      document.getElementById('play-btn').disabled = true;
+    }
+  }
+
+  function stopTTS() {
+    window.speechSynthesis.cancel();
+    ttsActive = false; ttsPaused = false; currentUtterance = null;
+    clearHighlights();
+    document.getElementById('pause-btn').textContent = '⏸';
+    if (currentPsalm) { setStatus('selected'); updateButtons(false); }
+  }
+
+  function clearHighlights() {
+    wordSpans.forEach(s => s.classList.remove('active'));
+  }
+
+  function updateButtons(playing) {
+    const play  = document.getElementById('play-btn');
+    const pause = document.getElementById('pause-btn');
+    const stop  = document.getElementById('stop-btn');
+    if (playing) {
+      play.disabled = true;
+      pause.disabled = false;
+      stop.disabled = false;
+    } else {
+      play.disabled = !currentPsalm;
+      pause.disabled = true;
+      stop.disabled = true;
+      document.getElementById('pause-btn').textContent = '⏸';
+    }
+  }
+
+  function setStatus(state) {
+    const badge = document.getElementById('status-badge');
+    const map = {
+      selected: ['📄 준비됨', 'badge-blue'],
+      playing:  ['🔊 읽는 중', 'badge-playing'],
+      paused:   ['⏸ 일시정지', 'badge-blue'],
+      done:     ['✅ 완료', 'badge-green'],
+    };
+    const [text, cls] = map[state] || ['', ''];
+    badge.innerHTML = text ? `<span class="badge ${cls}">${text}</span>` : '';
+  }
+
+  function updateSpeed(val) {
+    readingSpeed = parseFloat(val);
+    document.getElementById('speed-label').textContent = readingSpeed.toFixed(2) + '×';
+    if (ttsActive) {
+      stopTTS();
+      setTimeout(() => startReading(currentWordIdx), 80);
+    }
+  }
+
+  // iOS 배경전환 후 speechSynthesis가 멈추는 버그 방지
+  setInterval(() => {
+    if (window.speechSynthesis && ttsActive && !ttsPaused) {
+      window.speechSynthesis.resume();
+    }
+  }, 10000);
+</script>
+</body>
+</html>
