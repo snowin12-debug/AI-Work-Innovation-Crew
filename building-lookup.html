@@ -365,6 +365,7 @@
 
     const targetUrl = `${BLD_API}?${p}`;
     const text = await proxyFetch(targetUrl);
+    params._rawResp = text ? text.slice(0, 200) : "(empty)";
 
     let data;
     try {
@@ -374,9 +375,15 @@
       throw new Error(msg ? `API 인증 오류: ${msg[1] || msg[2]}` : `응답 파싱 오류: ${text.slice(0, 80)}`);
     }
 
+    if (!data || typeof data !== "object") {
+      throw new Error(`빈 응답: ${JSON.stringify(data)}`);
+    }
+
     const header = data?.response?.header;
-    if (header && header.resultCode && header.resultCode !== "00") {
-      throw new Error(`[${header.resultCode}] ${header.resultMsg || "API 오류"}`);
+    const resultCode = header?.resultCode ?? data?.resultCode;
+    const resultMsg  = header?.resultMsg  ?? data?.resultMsg ?? data?.message;
+    if (resultCode && resultCode !== "00") {
+      throw new Error(`[${resultCode}] ${resultMsg || "API 오류"}`);
     }
 
     params._totalCount = data?.response?.body?.totalCount ?? "-";
@@ -406,6 +413,7 @@
               <div>시도코드: <b style="color:#F1F5F9">${params.siDo}</b> | 시군구코드: <b style="color:#F1F5F9">${params.siGunGu}</b></div>
               <div>대지구분: <b style="color:#F1F5F9">${params.platGbCd === "1" ? "산" : "대지"}</b> | 번: <b style="color:#F1F5F9">${params.bun}</b> | 지: <b style="color:#F1F5F9">${params.ji || "0"}</b></div>
               <div>API totalCount: <b style="color:${tc === 0 || tc === '0' ? '#F87171' : '#22C55E'}">${tc ?? "-"}</b></div>
+              ${params._rawResp ? `<div style="margin-top:4px;color:#64748B;word-break:break-all">raw: ${params._rawResp.replace(/</g,"&lt;")}</div>` : ""}
             </div>
           </details>
         </div>
