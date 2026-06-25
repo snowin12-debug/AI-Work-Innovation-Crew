@@ -281,17 +281,17 @@
 
   async function searchJuso(keyword) {
     const p = new URLSearchParams({ confmKey: JUSO_KEY, currentPage: "1", countPerPage: "10", keyword, resultType: "json" });
-    const targetUrl = `${BLD_API}?${p}`;
-let data;
-try {
-  const res = await fetch(targetUrl);
-  if (!res.ok) throw new Error();
-  data = await res.json();
-} catch (_) {
-  const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
-  if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
-  data = await res.json();
-}
+    const targetUrl = `${JUSO_API}?${p}`;
+    let data;
+    try {
+      const res = await fetch(targetUrl);
+      if (!res.ok) throw new Error();
+      data = await res.json();
+    } catch (_) {
+      const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+      if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+      data = await res.json();
+    }
     const common = data?.results?.common;
     if (common?.errorCode !== "0") throw new Error(common?.errorMessage || "주소 검색 오류");
     return data?.results?.juso || [];
@@ -325,8 +325,9 @@ try {
     setProgress(2, "2/2 건축물대장 조회 중...");
     const params = extractParams(juso);
     let bld = null;
-    try { bld = await fetchBld(params); } catch (_) {}
-    renderResult(bld, params);
+    let bldErr = null;
+    try { bld = await fetchBld(params); } catch (e) { bldErr = e.message; }
+    renderResult(bld, params, bldErr);
     const addr = document.getElementById("addressInput").value.trim();
     searchHistory = [{ addr, bld, params }, ...searchHistory.slice(0, 4)];
     renderHistory();
@@ -361,18 +362,26 @@ try {
 
     const targetUrl = `${BLD_API}?${p}`;
     let data;
+    let usedProxy = false;
 
     try {
-      // 직접 요청 시도
       const res = await fetch(targetUrl);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      data = await res.json();
+      const text = await res.text();
+      data = JSON.parse(text);
     } catch (_) {
-      // CORS 차단 시 프록시로 우회
+      usedProxy = true;
       const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
       const res = await fetch(proxyUrl);
       if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
-      data = await res.json();
+      const text = await res.text();
+      data = JSON.parse(text);
+    }
+
+    const header = data?.response?.header;
+    if (header && header.resultCode && header.resultCode !== "00") {
+      const errMsg = header.resultMsg || "API 오류";
+      throw new Error(`[${header.resultCode}] ${errMsg}${usedProxy ? " (proxy)" : ""}`);
     }
 
     const items = data?.response?.body?.items?.item;
@@ -380,7 +389,7 @@ try {
     return Array.isArray(items) ? items[0] : items;
   }
 
-  function renderResult(bld, params) {
+  function renderResult(bld, params, bldErr) {
     const wrap = document.getElementById("resultWrap");
 
     if (!bld) {
@@ -388,7 +397,7 @@ try {
         <div class="no-data-card">
           <div style="font-size:40px;margin-bottom:12px">🔍</div>
           <p style="color:#94A3B8;font-size:15px;font-weight:600;margin-bottom:6px">건축물대장 데이터 없음</p>
-          <p style="color:#475569;font-size:12px;line-height:1.8">번지 정보가 정확하지 않거나 미등재 건물일 수 있습니다</p>
+          ${bldErr ? `<p style="color:#F87171;font-size:12px;margin-bottom:6px;font-family:monospace">⚠️ ${bldErr}</p>` : `<p style="color:#475569;font-size:12px;line-height:1.8">번지 정보가 정확하지 않거나 미등재 건물일 수 있습니다</p>`}
           <div style="margin-top:12px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;text-align:left">
             <p style="color:#64748B;font-size:11px;margin-bottom:3px">🏙️ ${params.roadAddr}</p>
             <p style="color:#475569;font-size:11px">📍 ${params.jibunAddr}</p>
