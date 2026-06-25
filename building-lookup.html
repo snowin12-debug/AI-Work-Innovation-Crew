@@ -281,9 +281,17 @@
 
   async function searchJuso(keyword) {
     const p = new URLSearchParams({ confmKey: JUSO_KEY, currentPage: "1", countPerPage: "10", keyword, resultType: "json" });
-    const res = await fetch(`${JUSO_API}?${p}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const targetUrl = `${BLD_API}?${p}`;
+let data;
+try {
+  const res = await fetch(targetUrl);
+  if (!res.ok) throw new Error();
+  data = await res.json();
+} catch (_) {
+  const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+  if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+  data = await res.json();
+}
     const common = data?.results?.common;
     if (common?.errorCode !== "0") throw new Error(common?.errorMessage || "주소 검색 오류");
     return data?.results?.juso || [];
