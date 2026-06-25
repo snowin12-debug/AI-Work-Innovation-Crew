@@ -279,19 +279,22 @@
     }
   }
 
+  async function proxyFetch(targetUrl) {
+    try {
+      const res = await fetch(targetUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.text();
+    } catch (_) {}
+    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+    if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+    return await res.text();
+  }
+
   async function searchJuso(keyword) {
     const p = new URLSearchParams({ confmKey: JUSO_KEY, currentPage: "1", countPerPage: "10", keyword, resultType: "json" });
     const targetUrl = `${JUSO_API}?${p}`;
-    let data;
-    try {
-      const res = await fetch(targetUrl);
-      if (!res.ok) throw new Error();
-      data = await res.json();
-    } catch (_) {
-      const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
-      if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
-      data = await res.json();
-    }
+    const text = await proxyFetch(targetUrl);
+    const data = JSON.parse(text);
     const common = data?.results?.common;
     if (common?.errorCode !== "0") throw new Error(common?.errorMessage || "주소 검색 오류");
     return data?.results?.juso || [];
@@ -361,27 +364,12 @@
     if (params.ji && params.ji !== "0")  p.append("ji", params.ji);
 
     const targetUrl = `${BLD_API}?${p}`;
-    let data;
-    let usedProxy = false;
-
-    try {
-      const res = await fetch(targetUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      data = JSON.parse(text);
-    } catch (_) {
-      usedProxy = true;
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-      const res = await fetch(proxyUrl);
-      if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
-      const text = await res.text();
-      data = JSON.parse(text);
-    }
+    const text = await proxyFetch(targetUrl);
+    const data = JSON.parse(text);
 
     const header = data?.response?.header;
     if (header && header.resultCode && header.resultCode !== "00") {
-      const errMsg = header.resultMsg || "API 오류";
-      throw new Error(`[${header.resultCode}] ${errMsg}${usedProxy ? " (proxy)" : ""}`);
+      throw new Error(`[${header.resultCode}] ${header.resultMsg || "API 오류"}`);
     }
 
     const items = data?.response?.body?.items?.item;
