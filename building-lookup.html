@@ -360,17 +360,26 @@
       numOfRows:  "10",
       _type:      "json",
     });
-    if (params.bun && params.bun !== "0") p.append("bun", params.bun);
-    if (params.ji && params.ji !== "0")  p.append("ji", params.ji);
+    if (params.bun) p.append("bun", params.bun);
+    p.append("ji", params.ji || "0");
 
     const targetUrl = `${BLD_API}?${p}`;
     const text = await proxyFetch(targetUrl);
-    const data = JSON.parse(text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (_) {
+      const msg = text.match(/returnAuthMsg[^>]*>([^<]+)<|errMsg[^>]*>([^<]+)</);
+      throw new Error(msg ? `API 인증 오류: ${msg[1] || msg[2]}` : `응답 파싱 오류: ${text.slice(0, 80)}`);
+    }
 
     const header = data?.response?.header;
     if (header && header.resultCode && header.resultCode !== "00") {
       throw new Error(`[${header.resultCode}] ${header.resultMsg || "API 오류"}`);
     }
+
+    params._totalCount = data?.response?.body?.totalCount ?? "-";
 
     const items = data?.response?.body?.items?.item;
     if (!items) return null;
@@ -381,6 +390,7 @@
     const wrap = document.getElementById("resultWrap");
 
     if (!bld) {
+      const tc = params._totalCount;
       wrap.innerHTML = `
         <div class="no-data-card">
           <div style="font-size:40px;margin-bottom:12px">🔍</div>
@@ -390,11 +400,12 @@
             <p style="color:#64748B;font-size:11px;margin-bottom:3px">🏙️ ${params.roadAddr}</p>
             <p style="color:#475569;font-size:11px">📍 ${params.jibunAddr}</p>
           </div>
-          <details style="margin-top:10px;text-align:left">
+          <details style="margin-top:10px;text-align:left" open>
             <summary style="color:#475569;font-size:11px;cursor:pointer;user-select:none">🔧 전송된 파라미터 확인</summary>
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:11px;color:#94A3B8;line-height:1.8">
               <div>시도코드: <b style="color:#F1F5F9">${params.siDo}</b> | 시군구코드: <b style="color:#F1F5F9">${params.siGunGu}</b></div>
-              <div>대지구분: <b style="color:#F1F5F9">${params.platGbCd === "1" ? "산" : "대지"}</b> | 번: <b style="color:#F1F5F9">${params.bun}</b> | 지: <b style="color:#F1F5F9">${params.ji}</b></div>
+              <div>대지구분: <b style="color:#F1F5F9">${params.platGbCd === "1" ? "산" : "대지"}</b> | 번: <b style="color:#F1F5F9">${params.bun}</b> | 지: <b style="color:#F1F5F9">${params.ji || "0"}</b></div>
+              <div>API totalCount: <b style="color:${tc === 0 || tc === '0' ? '#F87171' : '#22C55E'}">${tc ?? "-"}</b></div>
             </div>
           </details>
         </div>
