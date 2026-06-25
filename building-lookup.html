@@ -17,7 +17,6 @@
 
     .wrap { max-width: 580px; margin: 0 auto; }
 
-    /* Header */
     .header { text-align: center; margin-bottom: 24px; }
     .header-icon { font-size: 44px; margin-bottom: 6px; }
     .header h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; }
@@ -30,7 +29,6 @@
     .api-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; display: inline-block; }
     .api-badge span { color: #22C55E; font-size: 11px; font-weight: 600; }
 
-    /* Card */
     .card {
       background: rgba(255,255,255,0.04);
       backdrop-filter: blur(12px);
@@ -40,7 +38,6 @@
       margin-bottom: 16px;
     }
 
-    /* Input */
     .input-label { color: #94A3B8; font-size: 12px; font-weight: 600; display: block; margin-bottom: 8px; letter-spacing: 0.5px; }
     textarea {
       width: 100%;
@@ -64,13 +61,11 @@
 
     .error-msg { color: #F87171; font-size: 13px; margin-top: 6px; min-height: 18px; }
 
-    /* Progress */
     .progress-wrap { margin-top: 12px; display: none; }
     .progress-bar { display: flex; gap: 8px; }
     .progress-step { flex: 1; height: 4px; border-radius: 2px; transition: background 0.3s; }
     .progress-text { color: #64748B; font-size: 11px; text-align: center; margin-top: 6px; }
 
-    /* Examples */
     .examples-label { color: #475569; font-size: 11px; margin: 14px 0 6px; }
     .examples-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
     .example-btn {
@@ -80,7 +75,6 @@
     }
     .example-btn:hover { background: rgba(255,255,255,0.1); color: #94A3B8; }
 
-    /* Candidates */
     .candidates-title { color: #94A3B8; font-size: 13px; margin-bottom: 12px; line-height: 1.6; }
     .candidate-btn {
       width: 100%; background: rgba(255,255,255,0.05);
@@ -100,7 +94,6 @@
     }
     .back-btn:hover { color: #94A3B8; }
 
-    /* Result */
     .result-card { border-radius: 20px; border: 2px solid transparent; padding: 20px; margin-bottom: 16px; }
     .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .source-badge {
@@ -122,7 +115,6 @@
     .addr-road { color: #6B7280; font-size: 12px; margin-bottom: 3px; }
     .addr-jibun { color: #9CA3AF; font-size: 11px; }
 
-    /* No data */
     .no-data-card {
       text-align: center; padding: 32px 20px;
       background: rgba(255,255,255,0.04);
@@ -130,7 +122,6 @@
       margin-bottom: 16px;
     }
 
-    /* History */
     .history-label { color: #475569; font-size: 11px; margin-bottom: 8px; }
     .history-item {
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
@@ -146,7 +137,6 @@
 <body>
 <div class="wrap">
 
-  <!-- Header -->
   <div class="header">
     <div class="header-icon">🏘️</div>
     <h1>건물 유형 판별기</h1>
@@ -157,7 +147,6 @@
     </div>
   </div>
 
-  <!-- Input Card -->
   <div class="card">
     <label class="input-label">주소 입력 (도로명 또는 지번, 둘 다 OK)</label>
     <textarea id="addressInput" rows="2"
@@ -179,17 +168,14 @@
     </div>
   </div>
 
-  <!-- Candidates (여러 결과) -->
   <div class="card" id="candidatesCard" style="display:none">
     <p class="candidates-title" id="candidatesTitle"></p>
     <div id="candidatesList"></div>
     <button class="back-btn" onclick="resetDisplay()">← 다시 입력</button>
   </div>
 
-  <!-- Result -->
   <div id="resultWrap"></div>
 
-  <!-- History -->
   <div id="historySection" style="display:none">
     <p class="history-label">최근 검색</p>
     <div id="historyList"></div>
@@ -198,13 +184,11 @@
 </div>
 
 <script>
-  // ─── API 키 ───────────────────────────────────────────────
   const JUSO_KEY = "U01TX0FVVEgyMDI2MDYyNTIyNDE0NTExOTUxMDE=";
   const BLD_KEY  = "ad95d7c3bb1ef219eb1449781d7025df1c65b7334b07ecde5fcf1076dcc2deb0";
   const JUSO_API = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
   const BLD_API  = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrBasisOulnInfo";
 
-  // ─── 예시 주소 ────────────────────────────────────────────
   const EXAMPLES = [
     "서울 강남구 테헤란로 521",
     "서울 서초구 반포대로 201",
@@ -213,7 +197,6 @@
     "경기 성남시 분당구 정자동 15-1",
   ];
 
-  // ─── 유형별 스타일 ────────────────────────────────────────
   const TYPE_CFG = {
     "아파트":   { icon: "🏢", bg: "#EFF6FF", text: "#1D4ED8", border: "#BFDBFE" },
     "연립":     { icon: "🏘️", bg: "#F0FDF4", text: "#15803D", border: "#BBF7D0" },
@@ -234,9 +217,7 @@
     return TYPE_CFG.default;
   }
 
-  function fmt(n) {
-    return (n != null && n !== "") ? Number(n).toLocaleString() : "-";
-  }
+  function fmt(n) { return (n != null && n !== "") ? Number(n).toLocaleString() : "-"; }
 
   function fmtDate(d) {
     if (!d) return "-";
@@ -245,26 +226,20 @@
     return s;
   }
 
-  // ─── 초기화 ───────────────────────────────────────────────
   (function init() {
     const wrap = document.getElementById("examplesWrap");
     EXAMPLES.forEach(ex => {
       const btn = document.createElement("button");
       btn.className = "example-btn";
       btn.textContent = ex.length > 22 ? ex.slice(0, 22) + "…" : ex;
-      btn.onclick = () => {
-        document.getElementById("addressInput").value = ex;
-        resetDisplay();
-      };
+      btn.onclick = () => { document.getElementById("addressInput").value = ex; resetDisplay(); };
       wrap.appendChild(btn);
     });
-
     document.getElementById("addressInput").addEventListener("keydown", e => {
       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); }
     });
   })();
 
-  // ─── UI 헬퍼 ──────────────────────────────────────────────
   function resetDisplay() {
     document.getElementById("resultWrap").innerHTML = "";
     document.getElementById("candidatesCard").style.display = "none";
@@ -272,51 +247,30 @@
     setProgress(false);
   }
 
-  function setBtn(disabled) {
-    document.getElementById("searchBtn").disabled = disabled;
-  }
+  function setBtn(disabled) { document.getElementById("searchBtn").disabled = disabled; }
 
   function setProgress(stepNum, text) {
     const wrap = document.getElementById("progressWrap");
-    if (!stepNum) {
-      wrap.style.display = "none";
-      return;
-    }
+    if (!stepNum) { wrap.style.display = "none"; return; }
     wrap.style.display = "block";
-    document.getElementById("step1").style.background =
-      stepNum >= 1 ? "#3B82F6" : "rgba(59,130,246,0.3)";
-    document.getElementById("step2").style.background =
-      stepNum >= 2 ? "#6366F1" : "rgba(99,102,241,0.3)";
+    document.getElementById("step1").style.background = stepNum >= 1 ? "#3B82F6" : "rgba(59,130,246,0.3)";
+    document.getElementById("step2").style.background = stepNum >= 2 ? "#6366F1" : "rgba(99,102,241,0.3)";
     document.getElementById("progressText").textContent = text || "";
   }
 
-  function showError(msg) {
-    document.getElementById("errorMsg").textContent = msg;
-    setProgress(false);
-  }
+  function showError(msg) { document.getElementById("errorMsg").textContent = msg; setProgress(false); }
 
-  // ─── 주소 검색 (juso.go.kr) ──────────────────────────────
   async function handleSearch() {
     const address = document.getElementById("addressInput").value.trim();
     if (!address) return;
-
     resetDisplay();
     setBtn(true);
     setProgress(1, "1/2 주소 검색 중...");
-
     try {
       const list = await searchJuso(address);
-
-      if (!list.length) {
-        showError("주소를 찾을 수 없습니다. 더 구체적으로 입력해주세요.");
-        return;
-      }
-
-      if (list.length === 1) {
-        await loadBuilding(list[0]);
-      } else {
-        showCandidates(list);
-      }
+      if (!list.length) { showError("주소를 찾을 수 없습니다. 더 구체적으로 입력해주세요."); return; }
+      if (list.length === 1) { await loadBuilding(list[0]); }
+      else { showCandidates(list); }
     } catch (e) {
       showError("주소 검색 오류: " + e.message);
     } finally {
@@ -326,35 +280,20 @@
   }
 
   async function searchJuso(keyword) {
-    const p = new URLSearchParams({
-      confmKey:     JUSO_KEY,
-      currentPage:  "1",
-      countPerPage: "10",
-      keyword,
-      resultType:   "json",
-    });
-
+    const p = new URLSearchParams({ confmKey: JUSO_KEY, currentPage: "1", countPerPage: "10", keyword, resultType: "json" });
     const res = await fetch(`${JUSO_API}?${p}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
     const data = await res.json();
     const common = data?.results?.common;
-    if (common?.errorCode !== "0") {
-      throw new Error(common?.errorMessage || "주소 검색 오류");
-    }
+    if (common?.errorCode !== "0") throw new Error(common?.errorMessage || "주소 검색 오류");
     return data?.results?.juso || [];
   }
 
-  // ─── 후보 선택 UI ─────────────────────────────────────────
   function showCandidates(list) {
     setProgress(false);
-
-    document.getElementById("candidatesTitle").textContent =
-      `📍 ${list.length}개 주소가 검색됐습니다. 해당 건물을 선택하세요`;
-
+    document.getElementById("candidatesTitle").textContent = `📍 ${list.length}개 주소가 검색됐습니다. 해당 건물을 선택하세요`;
     const ul = document.getElementById("candidatesList");
     ul.innerHTML = "";
-
     list.forEach(j => {
       const btn = document.createElement("button");
       btn.className = "candidate-btn";
@@ -367,32 +306,19 @@
         document.getElementById("candidatesCard").style.display = "none";
         setBtn(true);
         setProgress(2, "2/2 건축물대장 조회 중...");
-        try {
-          await loadBuilding(j);
-        } finally {
-          setBtn(false);
-          setProgress(false);
-        }
+        try { await loadBuilding(j); } finally { setBtn(false); setProgress(false); }
       };
       ul.appendChild(btn);
     });
-
     document.getElementById("candidatesCard").style.display = "block";
   }
 
-  // ─── 건축물대장 조회 ──────────────────────────────────────
   async function loadBuilding(juso) {
     setProgress(2, "2/2 건축물대장 조회 중...");
-
     const params = extractParams(juso);
     let bld = null;
-    try {
-      bld = await fetchBld(params);
-    } catch (_) { /* 데이터 없음으로 처리 */ }
-
+    try { bld = await fetchBld(params); } catch (_) {}
     renderResult(bld, params);
-
-    // 히스토리 저장
     const addr = document.getElementById("addressInput").value.trim();
     searchHistory = [{ addr, bld, params }, ...searchHistory.slice(0, 4)];
     renderHistory();
@@ -404,7 +330,6 @@
       siDo:      bd.slice(0, 2),
       siGunGu:   bd.slice(2, 5),
       platGbCd:  juso.mtYn || "0",
-      // lnbrMnnm/lnbrSlno는 앞에 0이 붙은 문자열 → parseInt로 변환
       bun:       String(parseInt(juso.lnbrMnnm || "0") || ""),
       ji:        String(parseInt(juso.lnbrSlno || "0") || "0"),
       bdNm:      juso.bdNm || "",
@@ -426,16 +351,27 @@
     if (params.bun && params.bun !== "0") p.append("bun", params.bun);
     if (params.ji && params.ji !== "0")  p.append("ji", params.ji);
 
-    const res = await fetch(`${BLD_API}?${p}`);
-    if (!res.ok) return null;
+    const targetUrl = `${BLD_API}?${p}`;
+    let data;
 
-    const data = await res.json();
+    try {
+      // 직접 요청 시도
+      const res = await fetch(targetUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    } catch (_) {
+      // CORS 차단 시 프록시로 우회
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+      data = await res.json();
+    }
+
     const items = data?.response?.body?.items?.item;
     if (!items) return null;
     return Array.isArray(items) ? items[0] : items;
   }
 
-  // ─── 결과 렌더링 ──────────────────────────────────────────
   function renderResult(bld, params) {
     const wrap = document.getElementById("resultWrap");
 
@@ -444,13 +380,18 @@
         <div class="no-data-card">
           <div style="font-size:40px;margin-bottom:12px">🔍</div>
           <p style="color:#94A3B8;font-size:15px;font-weight:600;margin-bottom:6px">건축물대장 데이터 없음</p>
-          <p style="color:#475569;font-size:12px;line-height:1.8">
-            번지 정보가 정확하지 않거나 미등재 건물일 수 있습니다
-          </p>
-          <div style="margin-top:14px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;text-align:left">
+          <p style="color:#475569;font-size:12px;line-height:1.8">번지 정보가 정확하지 않거나 미등재 건물일 수 있습니다</p>
+          <div style="margin-top:12px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;text-align:left">
             <p style="color:#64748B;font-size:11px;margin-bottom:3px">🏙️ ${params.roadAddr}</p>
             <p style="color:#475569;font-size:11px">📍 ${params.jibunAddr}</p>
           </div>
+          <details style="margin-top:10px;text-align:left">
+            <summary style="color:#475569;font-size:11px;cursor:pointer;user-select:none">🔧 전송된 파라미터 확인</summary>
+            <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:11px;color:#94A3B8;line-height:1.8">
+              <div>시도코드: <b style="color:#F1F5F9">${params.siDo}</b> | 시군구코드: <b style="color:#F1F5F9">${params.siGunGu}</b></div>
+              <div>대지구분: <b style="color:#F1F5F9">${params.platGbCd === "1" ? "산" : "대지"}</b> | 번: <b style="color:#F1F5F9">${params.bun}</b> | 지: <b style="color:#F1F5F9">${params.ji}</b></div>
+            </div>
+          </details>
         </div>
       `;
       return;
@@ -466,7 +407,6 @@
         <div class="result-header">
           <div class="source-badge">✅ 공식 건축물대장</div>
         </div>
-
         <div class="result-main">
           <span style="font-size:52px">${cfg.icon}</span>
           <div>
@@ -475,7 +415,6 @@
             ${bld.bldNm ? `<p class="result-bldnm">${bld.bldNm}</p>` : ""}
           </div>
         </div>
-
         <div class="details-grid">
           <div class="detail-item">
             <p class="detail-label">지상층수</p>
@@ -502,7 +441,6 @@
             <p class="detail-value" style="font-size:12px">${bld.totArea ? fmt(Math.round(bld.totArea)) + "㎡" : "-"}</p>
           </div>
         </div>
-
         <div class="addr-info">
           <p class="addr-road">🏙️ ${params.roadAddr}</p>
           <p class="addr-jibun">📍 ${params.jibunAddr}</p>
@@ -511,17 +449,13 @@
     `;
   }
 
-  // ─── 히스토리 ─────────────────────────────────────────────
   function renderHistory() {
     if (searchHistory.length <= 1) return;
-
     const list = document.getElementById("historyList");
     list.innerHTML = "";
-
     searchHistory.slice(1).forEach(h => {
       const typeName = h.bld?.mainPurpsCdNm || "데이터 없음";
       const cfg = getCfg(typeName);
-
       const item = document.createElement("div");
       item.className = "history-item";
       item.innerHTML = `
@@ -529,13 +463,9 @@
         <span class="history-addr">${h.addr}</span>
         <span class="history-type" style="background:${cfg.bg};color:${cfg.text}">${typeName}</span>
       `;
-      item.onclick = () => {
-        document.getElementById("addressInput").value = h.addr;
-        renderResult(h.bld, h.params);
-      };
+      item.onclick = () => { document.getElementById("addressInput").value = h.addr; renderResult(h.bld, h.params); };
       list.appendChild(item);
     });
-
     document.getElementById("historySection").style.display = "block";
   }
 </script>
