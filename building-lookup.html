@@ -17,7 +17,6 @@
 
     .wrap { max-width: 580px; margin: 0 auto; }
 
-    /* Header */
     .header { text-align: center; margin-bottom: 24px; }
     .header-icon { font-size: 44px; margin-bottom: 6px; }
     .header h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; }
@@ -30,7 +29,6 @@
     .api-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; display: inline-block; }
     .api-badge span { color: #22C55E; font-size: 11px; font-weight: 600; }
 
-    /* Card */
     .card {
       background: rgba(255,255,255,0.04);
       backdrop-filter: blur(12px);
@@ -40,7 +38,6 @@
       margin-bottom: 16px;
     }
 
-    /* Input */
     .input-label { color: #94A3B8; font-size: 12px; font-weight: 600; display: block; margin-bottom: 8px; letter-spacing: 0.5px; }
     textarea {
       width: 100%;
@@ -64,13 +61,11 @@
 
     .error-msg { color: #F87171; font-size: 13px; margin-top: 6px; min-height: 18px; }
 
-    /* Progress */
     .progress-wrap { margin-top: 12px; display: none; }
     .progress-bar { display: flex; gap: 8px; }
     .progress-step { flex: 1; height: 4px; border-radius: 2px; transition: background 0.3s; }
     .progress-text { color: #64748B; font-size: 11px; text-align: center; margin-top: 6px; }
 
-    /* Examples */
     .examples-label { color: #475569; font-size: 11px; margin: 14px 0 6px; }
     .examples-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
     .example-btn {
@@ -80,7 +75,6 @@
     }
     .example-btn:hover { background: rgba(255,255,255,0.1); color: #94A3B8; }
 
-    /* Candidates */
     .candidates-title { color: #94A3B8; font-size: 13px; margin-bottom: 12px; line-height: 1.6; }
     .candidate-btn {
       width: 100%; background: rgba(255,255,255,0.05);
@@ -100,7 +94,6 @@
     }
     .back-btn:hover { color: #94A3B8; }
 
-    /* Result */
     .result-card { border-radius: 20px; border: 2px solid transparent; padding: 20px; margin-bottom: 16px; }
     .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .source-badge {
@@ -122,7 +115,6 @@
     .addr-road { color: #6B7280; font-size: 12px; margin-bottom: 3px; }
     .addr-jibun { color: #9CA3AF; font-size: 11px; }
 
-    /* No data */
     .no-data-card {
       text-align: center; padding: 32px 20px;
       background: rgba(255,255,255,0.04);
@@ -130,7 +122,6 @@
       margin-bottom: 16px;
     }
 
-    /* History */
     .history-label { color: #475569; font-size: 11px; margin-bottom: 8px; }
     .history-item {
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
@@ -146,7 +137,6 @@
 <body>
 <div class="wrap">
 
-  <!-- Header -->
   <div class="header">
     <div class="header-icon">🏘️</div>
     <h1>건물 유형 판별기</h1>
@@ -157,7 +147,6 @@
     </div>
   </div>
 
-  <!-- Input Card -->
   <div class="card">
     <label class="input-label">주소 입력 (도로명 또는 지번, 둘 다 OK)</label>
     <textarea id="addressInput" rows="2"
@@ -179,17 +168,14 @@
     </div>
   </div>
 
-  <!-- Candidates (여러 결과) -->
   <div class="card" id="candidatesCard" style="display:none">
     <p class="candidates-title" id="candidatesTitle"></p>
     <div id="candidatesList"></div>
     <button class="back-btn" onclick="resetDisplay()">← 다시 입력</button>
   </div>
 
-  <!-- Result -->
   <div id="resultWrap"></div>
 
-  <!-- History -->
   <div id="historySection" style="display:none">
     <p class="history-label">최근 검색</p>
     <div id="historyList"></div>
@@ -198,13 +184,12 @@
 </div>
 
 <script>
-  // ─── API 키 ───────────────────────────────────────────────
-  const JUSO_KEY = "U01TX0FVVEgyMDI2MDYyNTIyNDE0NTExOTUxMDE=";
-  const BLD_KEY  = "ad95d7c3bb1ef219eb1449781d7025df1c65b7334b07ecde5fcf1076dcc2deb0";
-  const JUSO_API = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
-  const BLD_API  = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrBasisOulnInfo";
+  const JUSO_KEY    = "U01TX0FVVEgyMDI2MDYyNTIyNDE0NTExOTUxMDE=";
+  const BLD_KEY     = "ad95d7c3bb1ef219eb1449781d7025df1c65b7334b07ecde5fcf1076dcc2deb0";
+  const JUSO_API    = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
+  const JUSO_BD_API = "https://business.juso.go.kr/addrlink/addrBdInfoApi.do";
+  const BLD_API     = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrBasisOulnInfo";
 
-  // ─── 예시 주소 ────────────────────────────────────────────
   const EXAMPLES = [
     "서울 강남구 테헤란로 521",
     "서울 서초구 반포대로 201",
@@ -213,7 +198,6 @@
     "경기 성남시 분당구 정자동 15-1",
   ];
 
-  // ─── 유형별 스타일 ────────────────────────────────────────
   const TYPE_CFG = {
     "아파트":   { icon: "🏢", bg: "#EFF6FF", text: "#1D4ED8", border: "#BFDBFE" },
     "연립":     { icon: "🏘️", bg: "#F0FDF4", text: "#15803D", border: "#BBF7D0" },
@@ -234,9 +218,7 @@
     return TYPE_CFG.default;
   }
 
-  function fmt(n) {
-    return (n != null && n !== "") ? Number(n).toLocaleString() : "-";
-  }
+  function fmt(n) { return (n != null && n !== "") ? Number(n).toLocaleString() : "-"; }
 
   function fmtDate(d) {
     if (!d) return "-";
@@ -245,26 +227,20 @@
     return s;
   }
 
-  // ─── 초기화 ───────────────────────────────────────────────
   (function init() {
     const wrap = document.getElementById("examplesWrap");
     EXAMPLES.forEach(ex => {
       const btn = document.createElement("button");
       btn.className = "example-btn";
       btn.textContent = ex.length > 22 ? ex.slice(0, 22) + "…" : ex;
-      btn.onclick = () => {
-        document.getElementById("addressInput").value = ex;
-        resetDisplay();
-      };
+      btn.onclick = () => { document.getElementById("addressInput").value = ex; resetDisplay(); };
       wrap.appendChild(btn);
     });
-
     document.getElementById("addressInput").addEventListener("keydown", e => {
       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); }
     });
   })();
 
-  // ─── UI 헬퍼 ──────────────────────────────────────────────
   function resetDisplay() {
     document.getElementById("resultWrap").innerHTML = "";
     document.getElementById("candidatesCard").style.display = "none";
@@ -272,51 +248,30 @@
     setProgress(false);
   }
 
-  function setBtn(disabled) {
-    document.getElementById("searchBtn").disabled = disabled;
-  }
+  function setBtn(disabled) { document.getElementById("searchBtn").disabled = disabled; }
 
   function setProgress(stepNum, text) {
     const wrap = document.getElementById("progressWrap");
-    if (!stepNum) {
-      wrap.style.display = "none";
-      return;
-    }
+    if (!stepNum) { wrap.style.display = "none"; return; }
     wrap.style.display = "block";
-    document.getElementById("step1").style.background =
-      stepNum >= 1 ? "#3B82F6" : "rgba(59,130,246,0.3)";
-    document.getElementById("step2").style.background =
-      stepNum >= 2 ? "#6366F1" : "rgba(99,102,241,0.3)";
+    document.getElementById("step1").style.background = stepNum >= 1 ? "#3B82F6" : "rgba(59,130,246,0.3)";
+    document.getElementById("step2").style.background = stepNum >= 2 ? "#6366F1" : "rgba(99,102,241,0.3)";
     document.getElementById("progressText").textContent = text || "";
   }
 
-  function showError(msg) {
-    document.getElementById("errorMsg").textContent = msg;
-    setProgress(false);
-  }
+  function showError(msg) { document.getElementById("errorMsg").textContent = msg; setProgress(false); }
 
-  // ─── 주소 검색 (juso.go.kr) ──────────────────────────────
   async function handleSearch() {
     const address = document.getElementById("addressInput").value.trim();
     if (!address) return;
-
     resetDisplay();
     setBtn(true);
     setProgress(1, "1/2 주소 검색 중...");
-
     try {
       const list = await searchJuso(address);
-
-      if (!list.length) {
-        showError("주소를 찾을 수 없습니다. 더 구체적으로 입력해주세요.");
-        return;
-      }
-
-      if (list.length === 1) {
-        await loadBuilding(list[0]);
-      } else {
-        showCandidates(list);
-      }
+      if (!list.length) { showError("주소를 찾을 수 없습니다. 더 구체적으로 입력해주세요."); return; }
+      if (list.length === 1) { await loadBuilding(list[0]); }
+      else { showCandidates(list); }
     } catch (e) {
       showError("주소 검색 오류: " + e.message);
     } finally {
@@ -325,36 +280,32 @@
     }
   }
 
+  async function proxyFetch(targetUrl) {
+    try {
+      const res = await fetch(targetUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.text();
+    } catch (_) {}
+    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+    if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+    return await res.text();
+  }
+
   async function searchJuso(keyword) {
-    const p = new URLSearchParams({
-      confmKey:     JUSO_KEY,
-      currentPage:  "1",
-      countPerPage: "10",
-      keyword,
-      resultType:   "json",
-    });
-
-    const res = await fetch(`${JUSO_API}?${p}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
+    const p = new URLSearchParams({ confmKey: JUSO_KEY, currentPage: "1", countPerPage: "10", keyword, resultType: "json" });
+    const targetUrl = `${JUSO_API}?${p}`;
+    const text = await proxyFetch(targetUrl);
+    const data = JSON.parse(text);
     const common = data?.results?.common;
-    if (common?.errorCode !== "0") {
-      throw new Error(common?.errorMessage || "주소 검색 오류");
-    }
+    if (common?.errorCode !== "0") throw new Error(common?.errorMessage || "주소 검색 오류");
     return data?.results?.juso || [];
   }
 
-  // ─── 후보 선택 UI ─────────────────────────────────────────
   function showCandidates(list) {
     setProgress(false);
-
-    document.getElementById("candidatesTitle").textContent =
-      `📍 ${list.length}개 주소가 검색됐습니다. 해당 건물을 선택하세요`;
-
+    document.getElementById("candidatesTitle").textContent = `📍 ${list.length}개 주소가 검색됐습니다. 해당 건물을 선택하세요`;
     const ul = document.getElementById("candidatesList");
     ul.innerHTML = "";
-
     list.forEach(j => {
       const btn = document.createElement("button");
       btn.className = "candidate-btn";
@@ -367,90 +318,200 @@
         document.getElementById("candidatesCard").style.display = "none";
         setBtn(true);
         setProgress(2, "2/2 건축물대장 조회 중...");
-        try {
-          await loadBuilding(j);
-        } finally {
-          setBtn(false);
-          setProgress(false);
-        }
+        try { await loadBuilding(j); } finally { setBtn(false); setProgress(false); }
       };
       ul.appendChild(btn);
     });
-
     document.getElementById("candidatesCard").style.display = "block";
   }
 
-  // ─── 건축물대장 조회 ──────────────────────────────────────
   async function loadBuilding(juso) {
     setProgress(2, "2/2 건축물대장 조회 중...");
-
     const params = extractParams(juso);
     let bld = null;
-    try {
-      bld = await fetchBld(params);
-    } catch (_) { /* 데이터 없음으로 처리 */ }
+    let bldErr = null;
+    let jusoInfo = null;
 
-    renderResult(bld, params);
+    // 각 시도를 독립 try-catch로 — 하나 실패해도 다음 시도 계속
+    const altGbCd = params.platGbCd === "0" ? "1" : "0";
 
-    // 히스토리 저장
+    // 1) 3자리 siGunGu 코드 + bdMgtSn platGbCd + zero-padded bun/ji
+    if (!bld) try { bld = await fetchBld(params, BLD_API); } catch (e) { bldErr = e.message; }
+    // 2) 반대 platGbCd (0↔1)
+    if (!bld) try {
+      const p2 = { ...params, platGbCd: altGbCd };
+      bld = await fetchBld(p2, BLD_API);
+      if (bld) Object.assign(params, p2);
+    } catch (e) { bldErr = e.message; }
+    // 3) 시도명/시군구명 (API 명세: siDo/siGunGu는 명칭 권장) + 원본 bun/ji
+    if (!bld) try {
+      const p3 = { ...params, siDo: params.siDoNm, siGunGu: params.siGunGuNm, bun: params.bunRaw, ji: params.jiRaw };
+      bld = await fetchBld(p3, BLD_API);
+      if (bld) Object.assign(params, p3);
+    } catch (e) { bldErr = e.message; }
+    // 4) 시도명/시군구명 + 반대 platGbCd
+    if (!bld) try {
+      const p4 = { ...params, siDo: params.siDoNm, siGunGu: params.siGunGuNm, platGbCd: altGbCd, bun: params.bunRaw, ji: params.jiRaw };
+      bld = await fetchBld(p4, BLD_API);
+      if (bld) Object.assign(params, p4);
+    } catch (e) { bldErr = e.message; }
+    // 5) 5자리 siGunGu 코드 (시도코드+시군구코드)
+    if (!bld) try {
+      const p5 = { ...params, siGunGu: params.siGunGu5 };
+      bld = await fetchBld(p5, BLD_API);
+      if (bld) Object.assign(params, p5);
+    } catch (e) { bldErr = e.message; }
+
+    // juso 건물정보 API 폴백 (같은 JUSO_KEY, 같은 proxy)
+    if (!bld) {
+      try { jusoInfo = await fetchJusoBd(juso, params); } catch (e) { params._jusoErr = e.message; }
+    }
+
+    renderResult(bld, params, bldErr, jusoInfo);
     const addr = document.getElementById("addressInput").value.trim();
-    searchHistory = [{ addr, bld, params }, ...searchHistory.slice(0, 4)];
+    searchHistory = [{ addr, bld, params, jusoInfo }, ...searchHistory.slice(0, 4)];
     renderHistory();
+  }
+
+  async function fetchJusoBd(juso, params = {}) {
+    const p = new URLSearchParams({
+      confmKey:  JUSO_KEY,
+      admCd:     juso.admCd    || "",
+      rnMgtSn:   juso.rnMgtSn  || "",
+      udrtYn:    juso.udrtYn   || "0",
+      buldMnnm:  juso.buldMnnm || "0",
+      buldSlno:  juso.buldSlno || "0",
+      resultType: "json",
+    });
+    params._jusoUrl = `admCd=${juso.admCd}&rnMgtSn=${juso.rnMgtSn}&buldMnnm=${juso.buldMnnm}&buldSlno=${juso.buldSlno}`;
+    const text = await proxyFetch(`${JUSO_BD_API}?${p}`);
+    params._jusoResp = text ? text.slice(0, 300) : "(empty)";
+    const data = JSON.parse(text);
+    const common = data?.results?.common;
+    if (common?.errorCode !== "0") {
+      params._jusoErr = common?.errorMessage || "juso 건물정보 오류";
+      return null;
+    }
+    const list = data?.results?.juso || [];
+    return list.length > 0 ? list[0] : null;
   }
 
   function extractParams(juso) {
     const bd = juso.bdMgtSn || "";
+    // bdMgtSn: 법정동코드(10)+산여부(1)+번(4)+지(4)+건물구분(1)+일련번호(5) = 25자리
+    // 또는 PNU만 19자리인 경우도 있음 → >= 19이면 파싱
+    const hasBd = bd.length >= 19;
+    const bunNum = parseInt(juso.lnbrMnnm || "0") || 0;
+    const jiNum  = parseInt(juso.lnbrSlno  || "0") || 0;
+    const siDo2    = bd.slice(0, 2);
+    const siGunGu3 = bd.slice(2, 5);
+    // 주소명 파싱: jibunAddr 첫 두 단어 = 시도명, 시군구명 (API 명세는 명칭 입력 권장)
+    const addrParts = (juso.jibunAddr || juso.roadAddr || "").trim().split(/\s+/);
     return {
-      siDo:      bd.slice(0, 2),
-      siGunGu:   bd.slice(2, 5),
-      platGbCd:  juso.mtYn || "0",
-      // lnbrMnnm/lnbrSlno는 앞에 0이 붙은 문자열 → parseInt로 변환
-      bun:       String(parseInt(juso.lnbrMnnm || "0") || ""),
-      ji:        String(parseInt(juso.lnbrSlno || "0") || "0"),
+      siDo:      siDo2,
+      siGunGu:   siGunGu3,
+      siGunGu5:  siDo2 + siGunGu3,           // 5자리 코드 (시도코드+시군구코드)
+      siDoNm:    addrParts[0] || siDo2,       // 시도명 (예: 서울특별시)
+      siGunGuNm: addrParts[1] || siGunGu3,   // 시군구명 (예: 양천구)
+      platGbCd:  hasBd ? bd[10] : (juso.mtYn || "0"),
+      bun:       hasBd ? bd.slice(11, 15) : String(bunNum).padStart(4, "0"),
+      ji:        hasBd ? bd.slice(15, 19) : String(jiNum).padStart(4, "0"),
+      bunRaw:    String(bunNum),              // zero-padding 없는 원본
+      jiRaw:     String(jiNum),
       bdNm:      juso.bdNm || "",
       roadAddr:  juso.roadAddr || "",
       jibunAddr: juso.jibunAddr || "",
+      _bdMgtSn:  bd,
     };
   }
 
-  async function fetchBld(params) {
+  async function fetchBld(params, apiUrl = BLD_API) {
     const p = new URLSearchParams({
       serviceKey: BLD_KEY,
       siDo:       params.siDo,
       siGunGu:    params.siGunGu,
       platGbCd:   params.platGbCd,
-      startPage:  "1",
+      pageNo:     "1",
       numOfRows:  "10",
       _type:      "json",
     });
-    if (params.bun && params.bun !== "0") p.append("bun", params.bun);
-    if (params.ji && params.ji !== "0")  p.append("ji", params.ji);
+    p.append("bun", params.bun);
+    p.append("ji",  params.ji);
 
-    const res = await fetch(`${BLD_API}?${p}`);
-    if (!res.ok) return null;
+    const targetUrl = `${apiUrl}?${p}`;
+    params._fullUrl = targetUrl;
+    params._reqUrl = `siDo=${params.siDo}&siGunGu=${params.siGunGu}&platGbCd=${params.platGbCd}&bun=${params.bun}&ji=${params.ji}`;
+    const text = await proxyFetch(targetUrl);
+    params._rawResp = text ? text.slice(0, 500) : "(empty)";
 
-    const data = await res.json();
-    const items = data?.response?.body?.items?.item;
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (_) {
+      const msg = text.match(/returnAuthMsg[^>]*>([^<]+)<|errMsg[^>]*>([^<]+)</);
+      throw new Error(msg ? `API 인증 오류: ${msg[1] || msg[2]}` : `응답 파싱 오류: ${text.slice(0, 80)}`);
+    }
+
+    if (!data || typeof data !== "object") {
+      throw new Error(`빈 응답: ${JSON.stringify(data)}`);
+    }
+
+    // API 응답 구조: {"header":{...},"body":{...}} — response 래퍼 없음
+    const header = data?.header ?? data?.response?.header;
+    const resultCode = header?.resultCode ?? data?.resultCode;
+    const resultMsg  = header?.resultMsg  ?? data?.resultMsg ?? data?.message;
+    if (resultCode && resultCode !== "00") {
+      throw new Error(`[${resultCode}] ${resultMsg || "API 오류"}`);
+    }
+
+    const body = data?.body ?? data?.response?.body;
+    params._totalCount = body?.totalCount ?? "-";
+
+    const items = body?.items?.item;
     if (!items) return null;
     return Array.isArray(items) ? items[0] : items;
   }
 
-  // ─── 결과 렌더링 ──────────────────────────────────────────
-  function renderResult(bld, params) {
+  function renderResult(bld, params, bldErr, jusoInfo) {
     const wrap = document.getElementById("resultWrap");
 
     if (!bld) {
+      const tc = params._totalCount;
+      const safeUrl = (params._fullUrl || "").replace(/serviceKey=[^&]+/, "serviceKey=***");
+      const jusoCard = jusoInfo ? `
+        <div style="margin-top:12px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:14px;text-align:left">
+          <p style="color:#818CF8;font-size:11px;font-weight:700;margin-bottom:8px">📋 주소 API 건물정보 (참고용)</p>
+          <p style="color:#C7D2FE;font-size:14px;font-weight:600">${jusoInfo.bdNm || "(건물명 없음)"}</p>
+          ${jusoInfo.bdKnd ? `<p style="color:#818CF8;font-size:11px;margin-top:4px">용도코드: ${jusoInfo.bdKnd}</p>` : ""}
+        </div>` : "";
       wrap.innerHTML = `
         <div class="no-data-card">
-          <div style="font-size:40px;margin-bottom:12px">🔍</div>
-          <p style="color:#94A3B8;font-size:15px;font-weight:600;margin-bottom:6px">건축물대장 데이터 없음</p>
-          <p style="color:#475569;font-size:12px;line-height:1.8">
-            번지 정보가 정확하지 않거나 미등재 건물일 수 있습니다
-          </p>
-          <div style="margin-top:14px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;text-align:left">
+          <div style="font-size:40px;margin-bottom:12px">${jusoInfo ? "⚠️" : "🔍"}</div>
+          <p style="color:#94A3B8;font-size:15px;font-weight:600;margin-bottom:6px">건축물대장 조회 실패</p>
+          ${bldErr ? `<p style="color:#F87171;font-size:12px;margin-bottom:6px;font-family:monospace">⚠️ ${bldErr}</p>` : `<p style="color:#475569;font-size:12px;line-height:1.8">건축물대장 API가 데이터를 반환하지 않았습니다</p>`}
+          <div style="margin-top:12px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;text-align:left">
             <p style="color:#64748B;font-size:11px;margin-bottom:3px">🏙️ ${params.roadAddr}</p>
             <p style="color:#475569;font-size:11px">📍 ${params.jibunAddr}</p>
           </div>
+          ${jusoCard}
+          <details style="margin-top:10px;text-align:left" open>
+            <summary style="color:#475569;font-size:11px;cursor:pointer;user-select:none">🔧 전송된 파라미터 확인</summary>
+            <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:11px;color:#94A3B8;line-height:1.8">
+              <div>bdMgtSn: <b style="color:#60A5FA">${params._bdMgtSn || "(없음)"}</b></div>
+              <div>시도: <b style="color:#F1F5F9">${params.siDo}</b>(코드) / <b style="color:#A78BFA">${params.siDoNm||""}</b>(명칭)</div>
+              <div>시군구: <b style="color:#F1F5F9">${params.siGunGu}</b>(3자리) / <b style="color:#F1F5F9">${params.siGunGu5||""}</b>(5자리) / <b style="color:#A78BFA">${params.siGunGuNm||""}</b>(명칭)</div>
+              <div>platGbCd: <b style="color:#F1F5F9">${params.platGbCd}</b> | bun: <b style="color:#F1F5F9">${params.bun||"(없음)"}</b>/<b style="color:#F1F5F9">${params.bunRaw||""}</b>(raw) | ji: <b style="color:#F1F5F9">${params.ji}</b></div>
+              <div>API totalCount: <b style="color:${tc === 0 || tc === '0' ? '#F87171' : '#22C55E'}">${tc ?? "-"}</b></div>
+              ${safeUrl ? `<div style="margin-top:6px"><span style="color:#64748B">건축물대장 URL (새탭 직접 테스트):</span><br><a href="${safeUrl.replace(/&/g,'&amp;')}" target="_blank" style="color:#60A5FA;font-size:10px;word-break:break-all">${safeUrl.replace(/&/g,'&amp;').slice(0,200)}</a></div>` : ""}
+              ${params._rawResp ? `<div style="margin-top:4px;color:#64748B;word-break:break-all">건축물대장 raw: ${params._rawResp.replace(/</g,"&lt;")}</div>` : ""}
+              <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px">
+                <span style="color:#818CF8">▸ juso 건물정보 폴백</span>
+                ${params._jusoUrl ? `<div style="color:#475569">params: ${params._jusoUrl}</div>` : ""}
+                ${params._jusoErr ? `<div style="color:#F87171">오류: ${params._jusoErr}</div>` : ""}
+                ${params._jusoResp ? `<div style="color:#64748B;word-break:break-all">raw: ${params._jusoResp.replace(/</g,"&lt;")}</div>` : "<div style='color:#475569'>실행되지 않음</div>"}
+              </div>
+            </div>
+          </details>
         </div>
       `;
       return;
@@ -466,7 +527,6 @@
         <div class="result-header">
           <div class="source-badge">✅ 공식 건축물대장</div>
         </div>
-
         <div class="result-main">
           <span style="font-size:52px">${cfg.icon}</span>
           <div>
@@ -475,7 +535,6 @@
             ${bld.bldNm ? `<p class="result-bldnm">${bld.bldNm}</p>` : ""}
           </div>
         </div>
-
         <div class="details-grid">
           <div class="detail-item">
             <p class="detail-label">지상층수</p>
@@ -502,7 +561,6 @@
             <p class="detail-value" style="font-size:12px">${bld.totArea ? fmt(Math.round(bld.totArea)) + "㎡" : "-"}</p>
           </div>
         </div>
-
         <div class="addr-info">
           <p class="addr-road">🏙️ ${params.roadAddr}</p>
           <p class="addr-jibun">📍 ${params.jibunAddr}</p>
@@ -511,17 +569,13 @@
     `;
   }
 
-  // ─── 히스토리 ─────────────────────────────────────────────
   function renderHistory() {
     if (searchHistory.length <= 1) return;
-
     const list = document.getElementById("historyList");
     list.innerHTML = "";
-
     searchHistory.slice(1).forEach(h => {
       const typeName = h.bld?.mainPurpsCdNm || "데이터 없음";
       const cfg = getCfg(typeName);
-
       const item = document.createElement("div");
       item.className = "history-item";
       item.innerHTML = `
@@ -529,13 +583,9 @@
         <span class="history-addr">${h.addr}</span>
         <span class="history-type" style="background:${cfg.bg};color:${cfg.text}">${typeName}</span>
       `;
-      item.onclick = () => {
-        document.getElementById("addressInput").value = h.addr;
-        renderResult(h.bld, h.params);
-      };
+      item.onclick = () => { document.getElementById("addressInput").value = h.addr; renderResult(h.bld, h.params, null, h.jusoInfo); };
       list.appendChild(item);
     });
-
     document.getElementById("historySection").style.display = "block";
   }
 </script>
