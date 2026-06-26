@@ -338,17 +338,20 @@
 
   function extractParams(juso) {
     const bd = juso.bdMgtSn || "";
+    // bdMgtSn (19자리): 시도(2)+시군구(3)+읍면동(3)+리(2)+산여부(1)+번(4)+지(4)
+    const hasBd = bd.length === 19;
     const bunNum = parseInt(juso.lnbrMnnm || "0") || 0;
     const jiNum  = parseInt(juso.lnbrSlno  || "0") || 0;
     return {
       siDo:      bd.slice(0, 2),
       siGunGu:   bd.slice(2, 5),
-      platGbCd:  juso.mtYn || "0",
-      bun:       bunNum ? String(bunNum).padStart(4, "0") : "",
-      ji:        String(jiNum).padStart(4, "0"),
+      platGbCd:  hasBd ? bd[10] : (juso.mtYn || "0"),
+      bun:       hasBd ? bd.slice(11, 15) : String(bunNum).padStart(4, "0"),
+      ji:        hasBd ? bd.slice(15, 19) : String(jiNum).padStart(4, "0"),
       bdNm:      juso.bdNm || "",
       roadAddr:  juso.roadAddr || "",
       jibunAddr: juso.jibunAddr || "",
+      _bdMgtSn:  bd,
     };
   }
 
@@ -362,8 +365,8 @@
       numOfRows:  "10",
       _type:      "json",
     });
-    if (params.bun) p.append("bun", params.bun);
-    p.append("ji", params.ji || "0000");
+    p.append("bun", params.bun);
+    p.append("ji",  params.ji);
 
     const targetUrl = `${BLD_API}?${p}`;
     params._reqUrl = `siDo=${params.siDo}&siGunGu=${params.siGunGu}&platGbCd=${params.platGbCd}&bun=${params.bun}&ji=${params.ji}`;
@@ -415,6 +418,7 @@
           <details style="margin-top:10px;text-align:left" open>
             <summary style="color:#475569;font-size:11px;cursor:pointer;user-select:none">🔧 전송된 파라미터 확인</summary>
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:11px;color:#94A3B8;line-height:1.8">
+              <div>bdMgtSn: <b style="color:#60A5FA">${params._bdMgtSn || "(없음)"}</b></div>
               <div>시도: <b style="color:#F1F5F9">${params.siDo}</b> | 시군구: <b style="color:#F1F5F9">${params.siGunGu}</b> | platGbCd: <b style="color:#F1F5F9">${params.platGbCd}</b></div>
               <div>번(bun): <b style="color:#F1F5F9">${params.bun || "(없음)"}</b> | 지(ji): <b style="color:#F1F5F9">${params.ji}</b></div>
               <div>API totalCount: <b style="color:${tc === 0 || tc === '0' ? '#F87171' : '#22C55E'}">${tc ?? "-"}</b></div>
