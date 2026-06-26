@@ -379,16 +379,18 @@
       throw new Error(`빈 응답: ${JSON.stringify(data)}`);
     }
 
-    const header = data?.response?.header;
+    // API 응답 구조: {"header":{...},"body":{...}} — response 래퍼 없음
+    const header = data?.header ?? data?.response?.header;
     const resultCode = header?.resultCode ?? data?.resultCode;
     const resultMsg  = header?.resultMsg  ?? data?.resultMsg ?? data?.message;
     if (resultCode && resultCode !== "00") {
       throw new Error(`[${resultCode}] ${resultMsg || "API 오류"}`);
     }
 
-    params._totalCount = data?.response?.body?.totalCount ?? "-";
+    const body = data?.body ?? data?.response?.body;
+    params._totalCount = body?.totalCount ?? "-";
 
-    const items = data?.response?.body?.items?.item;
+    const items = body?.items?.item;
     if (!items) return null;
     return Array.isArray(items) ? items[0] : items;
   }
