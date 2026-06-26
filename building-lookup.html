@@ -184,10 +184,12 @@
 </div>
 
 <script>
-  const JUSO_KEY = "U01TX0FVVEgyMDI2MDYyNTIyNDE0NTExOTUxMDE=";
-  const BLD_KEY  = "ad95d7c3bb1ef219eb1449781d7025df1c65b7334b07ecde5fcf1076dcc2deb0";
-  const JUSO_API = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
-  const BLD_API  = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrBasisOulnInfo";
+  const JUSO_KEY    = "U01TX0FVVEgyMDI2MDYyNTIyNDE0NTExOTUxMDE=";
+  const BLD_KEY     = "ad95d7c3bb1ef219eb1449781d7025df1c65b7334b07ecde5fcf1076dcc2deb0";
+  const JUSO_API    = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
+  const JUSO_BD_API = "https://business.juso.go.kr/addrlink/addrBdInfoApi.do";
+  const BLD_API     = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrBasisOulnInfo";
+  const BLD_API_V2  = "https://apis.data.go.kr/1613000/BldRgstService_v2/getBrBasisOulnInfo";
 
   const EXAMPLES = [
     "서울 강남구 테헤란로 521",
@@ -329,20 +331,56 @@
     const params = extractParams(juso);
     let bld = null;
     let bldErr = null;
+    let jusoInfo = null;
+
     try {
-      bld = await fetchBld(params);
+      // 1) Hub service, primary platGbCd
+      bld = await fetchBld(params, BLD_API);
+      // 2) Hub service, flipped platGbCd
       if (!bld) {
-        // platGbCd 오류 대비: 반대 값(대지↔산)으로 재시도
         const alt = params.platGbCd === "0" ? "1" : "0";
         const p2 = { ...params, platGbCd: alt };
-        bld = await fetchBld(p2);
+        bld = await fetchBld(p2, BLD_API);
+        if (bld) Object.assign(params, p2);
+      }
+      // 3) v2 service, primary platGbCd
+      if (!bld) bld = await fetchBld(params, BLD_API_V2);
+      // 4) v2 service, flipped platGbCd
+      if (!bld) {
+        const alt = params.platGbCd === "0" ? "1" : "0";
+        const p2 = { ...params, platGbCd: alt };
+        bld = await fetchBld(p2, BLD_API_V2);
         if (bld) Object.assign(params, p2);
       }
     } catch (e) { bldErr = e.message; }
-    renderResult(bld, params, bldErr);
+
+    // 5) Fallback: juso 건물정보 API (same key, same proxy)
+    if (!bld) {
+      try { jusoInfo = await fetchJusoBd(juso); } catch (_) {}
+    }
+
+    renderResult(bld, params, bldErr, jusoInfo);
     const addr = document.getElementById("addressInput").value.trim();
-    searchHistory = [{ addr, bld, params }, ...searchHistory.slice(0, 4)];
+    searchHistory = [{ addr, bld, params, jusoInfo }, ...searchHistory.slice(0, 4)];
     renderHistory();
+  }
+
+  async function fetchJusoBd(juso) {
+    if (!juso.admCd || !juso.rnMgtSn) return null;
+    const p = new URLSearchParams({
+      confmKey:  JUSO_KEY,
+      admCd:     juso.admCd,
+      rnMgtSn:   juso.rnMgtSn,
+      udrtYn:    juso.udrtYn   || "0",
+      buldMnnm:  juso.buldMnnm || "0",
+      buldSlno:  juso.buldSlno || "0",
+      resultType: "json",
+    });
+    const text = await proxyFetch(`${JUSO_BD_API}?${p}`);
+    const data = JSON.parse(text);
+    if (data?.results?.common?.errorCode !== "0") return null;
+    const list = data?.results?.juso || [];
+    return list.length > 0 ? list[0] : null;
   }
 
   function extractParams(juso) {
@@ -365,21 +403,22 @@
     };
   }
 
-  async function fetchBld(params) {
+  async function fetchBld(params, apiUrl = BLD_API) {
     const p = new URLSearchParams({
       serviceKey: BLD_KEY,
       siDo:       params.siDo,
       siGunGu:    params.siGunGu,
       platGbCd:   params.platGbCd,
-      startPage:  "1",
+      pageNo:     "1",
       numOfRows:  "10",
       _type:      "json",
     });
     p.append("bun", params.bun);
     p.append("ji",  params.ji);
 
-    const targetUrl = `${BLD_API}?${p}`;
-    params._reqUrl = `siDo=${params.siDo}&siGunGu=${params.siGunGu}&platGbCd=${params.platGbCd}&bun=${params.bun}&ji=${params.ji}`;
+    const targetUrl = `${apiUrl}?${p}`;
+    params._fullUrl = targetUrl;
+    params._reqUrl = `siDo=${params.siDo}&siGunGu=${params.siGunGu}&platGbCd=${params.platGbCd}&bun=${params.bun}&ji=${params.ji}&[${apiUrl.includes("v2") ? "v2" : "hub"}]`;
     const text = await proxyFetch(targetUrl);
     params._rawResp = text ? text.slice(0, 500) : "(empty)";
 
@@ -411,20 +450,28 @@
     return Array.isArray(items) ? items[0] : items;
   }
 
-  function renderResult(bld, params, bldErr) {
+  function renderResult(bld, params, bldErr, jusoInfo) {
     const wrap = document.getElementById("resultWrap");
 
     if (!bld) {
       const tc = params._totalCount;
+      const safeUrl = (params._fullUrl || "").replace(/serviceKey=[^&]+/, "serviceKey=***");
+      const jusoCard = jusoInfo ? `
+        <div style="margin-top:12px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:14px;text-align:left">
+          <p style="color:#818CF8;font-size:11px;font-weight:700;margin-bottom:8px">📋 주소 API 건물정보 (참고용)</p>
+          <p style="color:#C7D2FE;font-size:14px;font-weight:600">${jusoInfo.bdNm || "(건물명 없음)"}</p>
+          ${jusoInfo.bdKnd ? `<p style="color:#818CF8;font-size:11px;margin-top:4px">용도코드: ${jusoInfo.bdKnd}</p>` : ""}
+        </div>` : "";
       wrap.innerHTML = `
         <div class="no-data-card">
-          <div style="font-size:40px;margin-bottom:12px">🔍</div>
-          <p style="color:#94A3B8;font-size:15px;font-weight:600;margin-bottom:6px">건축물대장 데이터 없음</p>
-          ${bldErr ? `<p style="color:#F87171;font-size:12px;margin-bottom:6px;font-family:monospace">⚠️ ${bldErr}</p>` : `<p style="color:#475569;font-size:12px;line-height:1.8">번지 정보가 정확하지 않거나 미등재 건물일 수 있습니다</p>`}
+          <div style="font-size:40px;margin-bottom:12px">${jusoInfo ? "⚠️" : "🔍"}</div>
+          <p style="color:#94A3B8;font-size:15px;font-weight:600;margin-bottom:6px">건축물대장 조회 실패</p>
+          ${bldErr ? `<p style="color:#F87171;font-size:12px;margin-bottom:6px;font-family:monospace">⚠️ ${bldErr}</p>` : `<p style="color:#475569;font-size:12px;line-height:1.8">건축물대장 API가 데이터를 반환하지 않았습니다</p>`}
           <div style="margin-top:12px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;text-align:left">
             <p style="color:#64748B;font-size:11px;margin-bottom:3px">🏙️ ${params.roadAddr}</p>
             <p style="color:#475569;font-size:11px">📍 ${params.jibunAddr}</p>
           </div>
+          ${jusoCard}
           <details style="margin-top:10px;text-align:left" open>
             <summary style="color:#475569;font-size:11px;cursor:pointer;user-select:none">🔧 전송된 파라미터 확인</summary>
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:11px;color:#94A3B8;line-height:1.8">
@@ -432,6 +479,7 @@
               <div>시도: <b style="color:#F1F5F9">${params.siDo}</b> | 시군구: <b style="color:#F1F5F9">${params.siGunGu}</b> | platGbCd: <b style="color:#F1F5F9">${params.platGbCd}</b></div>
               <div>번(bun): <b style="color:#F1F5F9">${params.bun || "(없음)"}</b> | 지(ji): <b style="color:#F1F5F9">${params.ji}</b></div>
               <div>API totalCount: <b style="color:${tc === 0 || tc === '0' ? '#F87171' : '#22C55E'}">${tc ?? "-"}</b></div>
+              ${safeUrl ? `<div style="margin-top:6px"><span style="color:#64748B">API URL (새탭에서 직접 테스트):</span><br><a href="${safeUrl.replace(/&/g,'&amp;')}" target="_blank" style="color:#60A5FA;font-size:10px;word-break:break-all">${safeUrl.replace(/&/g,'&amp;').slice(0,200)}</a></div>` : ""}
               ${params._rawResp ? `<div style="margin-top:4px;color:#64748B;word-break:break-all">raw: ${params._rawResp.replace(/</g,"&lt;")}</div>` : ""}
             </div>
           </details>
@@ -506,7 +554,7 @@
         <span class="history-addr">${h.addr}</span>
         <span class="history-type" style="background:${cfg.bg};color:${cfg.text}">${typeName}</span>
       `;
-      item.onclick = () => { document.getElementById("addressInput").value = h.addr; renderResult(h.bld, h.params); };
+      item.onclick = () => { document.getElementById("addressInput").value = h.addr; renderResult(h.bld, h.params, null, h.jusoInfo); };
       list.appendChild(item);
     });
     document.getElementById("historySection").style.display = "block";
