@@ -329,7 +329,16 @@
     const params = extractParams(juso);
     let bld = null;
     let bldErr = null;
-    try { bld = await fetchBld(params); } catch (e) { bldErr = e.message; }
+    try {
+      bld = await fetchBld(params);
+      if (!bld) {
+        // platGbCd 오류 대비: 반대 값(대지↔산)으로 재시도
+        const alt = params.platGbCd === "0" ? "1" : "0";
+        const p2 = { ...params, platGbCd: alt };
+        bld = await fetchBld(p2);
+        if (bld) Object.assign(params, p2);
+      }
+    } catch (e) { bldErr = e.message; }
     renderResult(bld, params, bldErr);
     const addr = document.getElementById("addressInput").value.trim();
     searchHistory = [{ addr, bld, params }, ...searchHistory.slice(0, 4)];
@@ -338,8 +347,9 @@
 
   function extractParams(juso) {
     const bd = juso.bdMgtSn || "";
-    // bdMgtSn (19자리): 시도(2)+시군구(3)+읍면동(3)+리(2)+산여부(1)+번(4)+지(4)
-    const hasBd = bd.length === 19;
+    // bdMgtSn: 법정동코드(10)+산여부(1)+번(4)+지(4)+건물구분(1)+일련번호(5) = 25자리
+    // 또는 PNU만 19자리인 경우도 있음 → >= 19이면 파싱
+    const hasBd = bd.length >= 19;
     const bunNum = parseInt(juso.lnbrMnnm || "0") || 0;
     const jiNum  = parseInt(juso.lnbrSlno  || "0") || 0;
     return {
