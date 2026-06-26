@@ -189,7 +189,6 @@
   const JUSO_API    = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
   const JUSO_BD_API = "https://business.juso.go.kr/addrlink/addrBdInfoApi.do";
   const BLD_API     = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrBasisOulnInfo";
-  const BLD_API_V2  = "https://apis.data.go.kr/1613000/BldRgstService_v2/getBrBasisOulnInfo";
 
   const EXAMPLES = [
     "서울 강남구 테헤란로 521",
@@ -333,30 +332,19 @@
     let bldErr = null;
     let jusoInfo = null;
 
-    try {
-      // 1) Hub service, primary platGbCd
-      bld = await fetchBld(params, BLD_API);
-      // 2) Hub service, flipped platGbCd
-      if (!bld) {
-        const alt = params.platGbCd === "0" ? "1" : "0";
-        const p2 = { ...params, platGbCd: alt };
-        bld = await fetchBld(p2, BLD_API);
-        if (bld) Object.assign(params, p2);
-      }
-      // 3) v2 service, primary platGbCd
-      if (!bld) bld = await fetchBld(params, BLD_API_V2);
-      // 4) v2 service, flipped platGbCd
-      if (!bld) {
-        const alt = params.platGbCd === "0" ? "1" : "0";
-        const p2 = { ...params, platGbCd: alt };
-        bld = await fetchBld(p2, BLD_API_V2);
-        if (bld) Object.assign(params, p2);
-      }
+    // 각 시도를 독립 try-catch로 — 하나 실패해도 다음 시도 계속
+    const altGbCd = params.platGbCd === "0" ? "1" : "0";
+
+    if (!bld) try { bld = await fetchBld(params, BLD_API); } catch (e) { bldErr = e.message; }
+    if (!bld) try {
+      const p2 = { ...params, platGbCd: altGbCd };
+      bld = await fetchBld(p2, BLD_API);
+      if (bld) Object.assign(params, p2);
     } catch (e) { bldErr = e.message; }
 
-    // 5) Fallback: juso 건물정보 API (same key, same proxy)
+    // juso 건물정보 API 폴백 (같은 JUSO_KEY, 같은 proxy)
     if (!bld) {
-      try { jusoInfo = await fetchJusoBd(juso); } catch (_) {}
+      try { jusoInfo = await fetchJusoBd(juso, params); } catch (e) { params._jusoErr = e.message; }
     }
 
     renderResult(bld, params, bldErr, jusoInfo);
@@ -365,20 +353,25 @@
     renderHistory();
   }
 
-  async function fetchJusoBd(juso) {
-    if (!juso.admCd || !juso.rnMgtSn) return null;
+  async function fetchJusoBd(juso, params = {}) {
     const p = new URLSearchParams({
       confmKey:  JUSO_KEY,
-      admCd:     juso.admCd,
-      rnMgtSn:   juso.rnMgtSn,
+      admCd:     juso.admCd    || "",
+      rnMgtSn:   juso.rnMgtSn  || "",
       udrtYn:    juso.udrtYn   || "0",
       buldMnnm:  juso.buldMnnm || "0",
       buldSlno:  juso.buldSlno || "0",
       resultType: "json",
     });
+    params._jusoUrl = `admCd=${juso.admCd}&rnMgtSn=${juso.rnMgtSn}&buldMnnm=${juso.buldMnnm}&buldSlno=${juso.buldSlno}`;
     const text = await proxyFetch(`${JUSO_BD_API}?${p}`);
+    params._jusoResp = text ? text.slice(0, 300) : "(empty)";
     const data = JSON.parse(text);
-    if (data?.results?.common?.errorCode !== "0") return null;
+    const common = data?.results?.common;
+    if (common?.errorCode !== "0") {
+      params._jusoErr = common?.errorMessage || "juso 건물정보 오류";
+      return null;
+    }
     const list = data?.results?.juso || [];
     return list.length > 0 ? list[0] : null;
   }
@@ -418,7 +411,7 @@
 
     const targetUrl = `${apiUrl}?${p}`;
     params._fullUrl = targetUrl;
-    params._reqUrl = `siDo=${params.siDo}&siGunGu=${params.siGunGu}&platGbCd=${params.platGbCd}&bun=${params.bun}&ji=${params.ji}&[${apiUrl.includes("v2") ? "v2" : "hub"}]`;
+    params._reqUrl = `siDo=${params.siDo}&siGunGu=${params.siGunGu}&platGbCd=${params.platGbCd}&bun=${params.bun}&ji=${params.ji}`;
     const text = await proxyFetch(targetUrl);
     params._rawResp = text ? text.slice(0, 500) : "(empty)";
 
@@ -479,8 +472,14 @@
               <div>시도: <b style="color:#F1F5F9">${params.siDo}</b> | 시군구: <b style="color:#F1F5F9">${params.siGunGu}</b> | platGbCd: <b style="color:#F1F5F9">${params.platGbCd}</b></div>
               <div>번(bun): <b style="color:#F1F5F9">${params.bun || "(없음)"}</b> | 지(ji): <b style="color:#F1F5F9">${params.ji}</b></div>
               <div>API totalCount: <b style="color:${tc === 0 || tc === '0' ? '#F87171' : '#22C55E'}">${tc ?? "-"}</b></div>
-              ${safeUrl ? `<div style="margin-top:6px"><span style="color:#64748B">API URL (새탭에서 직접 테스트):</span><br><a href="${safeUrl.replace(/&/g,'&amp;')}" target="_blank" style="color:#60A5FA;font-size:10px;word-break:break-all">${safeUrl.replace(/&/g,'&amp;').slice(0,200)}</a></div>` : ""}
-              ${params._rawResp ? `<div style="margin-top:4px;color:#64748B;word-break:break-all">raw: ${params._rawResp.replace(/</g,"&lt;")}</div>` : ""}
+              ${safeUrl ? `<div style="margin-top:6px"><span style="color:#64748B">건축물대장 URL (새탭 직접 테스트):</span><br><a href="${safeUrl.replace(/&/g,'&amp;')}" target="_blank" style="color:#60A5FA;font-size:10px;word-break:break-all">${safeUrl.replace(/&/g,'&amp;').slice(0,200)}</a></div>` : ""}
+              ${params._rawResp ? `<div style="margin-top:4px;color:#64748B;word-break:break-all">건축물대장 raw: ${params._rawResp.replace(/</g,"&lt;")}</div>` : ""}
+              <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px">
+                <span style="color:#818CF8">▸ juso 건물정보 폴백</span>
+                ${params._jusoUrl ? `<div style="color:#475569">params: ${params._jusoUrl}</div>` : ""}
+                ${params._jusoErr ? `<div style="color:#F87171">오류: ${params._jusoErr}</div>` : ""}
+                ${params._jusoResp ? `<div style="color:#64748B;word-break:break-all">raw: ${params._jusoResp.replace(/</g,"&lt;")}</div>` : "<div style='color:#475569'>실행되지 않음</div>"}
+              </div>
             </div>
           </details>
         </div>
