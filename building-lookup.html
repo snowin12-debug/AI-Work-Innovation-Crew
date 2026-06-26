@@ -338,12 +338,14 @@
 
   function extractParams(juso) {
     const bd = juso.bdMgtSn || "";
+    const bunNum = parseInt(juso.lnbrMnnm || "0") || 0;
+    const jiNum  = parseInt(juso.lnbrSlno  || "0") || 0;
     return {
       siDo:      bd.slice(0, 2),
       siGunGu:   bd.slice(2, 5),
       platGbCd:  juso.mtYn || "0",
-      bun:       String(parseInt(juso.lnbrMnnm || "0") || ""),
-      ji:        String(parseInt(juso.lnbrSlno || "0") || "0"),
+      bun:       bunNum ? String(bunNum).padStart(4, "0") : "",
+      ji:        String(jiNum).padStart(4, "0"),
       bdNm:      juso.bdNm || "",
       roadAddr:  juso.roadAddr || "",
       jibunAddr: juso.jibunAddr || "",
@@ -361,11 +363,12 @@
       _type:      "json",
     });
     if (params.bun) p.append("bun", params.bun);
-    p.append("ji", params.ji || "0");
+    p.append("ji", params.ji || "0000");
 
     const targetUrl = `${BLD_API}?${p}`;
+    params._reqUrl = `siDo=${params.siDo}&siGunGu=${params.siGunGu}&platGbCd=${params.platGbCd}&bun=${params.bun}&ji=${params.ji}`;
     const text = await proxyFetch(targetUrl);
-    params._rawResp = text ? text.slice(0, 200) : "(empty)";
+    params._rawResp = text ? text.slice(0, 500) : "(empty)";
 
     let data;
     try {
@@ -412,8 +415,8 @@
           <details style="margin-top:10px;text-align:left" open>
             <summary style="color:#475569;font-size:11px;cursor:pointer;user-select:none">🔧 전송된 파라미터 확인</summary>
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:11px;color:#94A3B8;line-height:1.8">
-              <div>시도코드: <b style="color:#F1F5F9">${params.siDo}</b> | 시군구코드: <b style="color:#F1F5F9">${params.siGunGu}</b></div>
-              <div>대지구분: <b style="color:#F1F5F9">${params.platGbCd === "1" ? "산" : "대지"}</b> | 번: <b style="color:#F1F5F9">${params.bun}</b> | 지: <b style="color:#F1F5F9">${params.ji || "0"}</b></div>
+              <div>시도: <b style="color:#F1F5F9">${params.siDo}</b> | 시군구: <b style="color:#F1F5F9">${params.siGunGu}</b> | platGbCd: <b style="color:#F1F5F9">${params.platGbCd}</b></div>
+              <div>번(bun): <b style="color:#F1F5F9">${params.bun || "(없음)"}</b> | 지(ji): <b style="color:#F1F5F9">${params.ji}</b></div>
               <div>API totalCount: <b style="color:${tc === 0 || tc === '0' ? '#F87171' : '#22C55E'}">${tc ?? "-"}</b></div>
               ${params._rawResp ? `<div style="margin-top:4px;color:#64748B;word-break:break-all">raw: ${params._rawResp.replace(/</g,"&lt;")}</div>` : ""}
             </div>
