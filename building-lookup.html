@@ -224,37 +224,33 @@
   // 공동주택/단독주택 → 아파트/연립/다세대/다가구 세부 분류
   function getDetailedType(bld) {
     const mainNm   = bld.mainPurpsCdNm || "";
-    const etcPurps = bld.etcPurps      || "";
-    const bldNm    = bld.bldNm         || "";
+    const etcPurps = (bld.etcPurps || "").trim();
+    const bldNm    = bld.bldNm || "";
     const floors   = parseInt(bld.grndFlrCnt) || 0;
     const totArea  = parseFloat(bld.totArea)  || 0;
 
-    // 1) etcPurps(기타용도) — 건축물대장의 가장 정확한 세부분류
-    const combined = etcPurps + " " + bldNm;
-    if (combined.includes("오피스텔"))  return "오피스텔";
-    if (combined.includes("주상복합"))  return "주상복합";
-    if (combined.includes("아파트"))    return "아파트";
-    if (combined.includes("연립"))      return "연립주택";
-    if (combined.includes("다세대"))    return "다세대주택";
-    if (combined.includes("다가구"))    return "다가구주택";
+    // 1순위: etcPurps 값을 그대로 반환 (건축물대장 기타용도 = 가장 정확한 세부분류)
+    if (etcPurps) return etcPurps;
 
-    // 2) mainPurpsCdNm이 이미 세부명칭인 경우
+    // 2순위: 건물명 키워드
+    if (bldNm.includes("오피스텔")) return "오피스텔";
+    if (bldNm.includes("주상복합")) return "주상복합";
+    if (bldNm.includes("아파트"))   return "아파트";
+
+    // 3순위: mainPurpsCdNm이 이미 세부명칭인 경우
     if (mainNm !== "공동주택" && mainNm !== "단독주택" && mainNm !== "") {
       return mainNm;
     }
 
-    // 3) 공동주택: 건축법상 층수·연면적 기준
-    if (mainNm === "공동주택" || mainNm.includes("공동주택")) {
-      if (floors >= 5)       return "아파트";       // 5층↑ = 아파트
-      if (totArea > 660)     return "연립주택";     // 4층↓ + 660㎡↑ = 연립주택
-      if (floors > 0)        return "다세대주택";   // 4층↓ + 660㎡↓ = 다세대주택(빌라)
+    // 4순위: 공동주택 → 건축법 기준 층수·연면적
+    if (mainNm.includes("공동주택")) {
+      if (floors >= 5)    return "아파트";      // 5층↑
+      if (totArea > 660)  return "연립주택";    // 4층↓ 660㎡↑
+      if (floors > 0)     return "다세대주택";  // 4층↓ 660㎡↓ (빌라)
       return "공동주택";
     }
 
-    // 4) 단독주택 세부
-    if (mainNm === "단독주택" || mainNm.includes("단독")) {
-      return "단독주택";
-    }
+    if (mainNm.includes("단독")) return "단독주택";
 
     return mainNm || "기타";
   }
