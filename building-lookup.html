@@ -199,23 +199,64 @@
   ];
 
   const TYPE_CFG = {
-    "아파트":   { icon: "🏢", bg: "#EFF6FF", text: "#1D4ED8", border: "#BFDBFE" },
-    "연립":     { icon: "🏘️", bg: "#F0FDF4", text: "#15803D", border: "#BBF7D0" },
-    "다세대":   { icon: "🏘️", bg: "#F0FDF4", text: "#15803D", border: "#BBF7D0" },
-    "단독":     { icon: "🏠", bg: "#FFF7ED", text: "#C2410C", border: "#FED7AA" },
-    "다가구":   { icon: "🏚️", bg: "#FFFBEB", text: "#854D0E", border: "#FEF08A" },
-    "오피스텔": { icon: "🏙️", bg: "#FAF5FF", text: "#7E22CE", border: "#E9D5FF" },
-    "default":  { icon: "🏗️", bg: "#F9FAFB", text: "#374151", border: "#E5E7EB" },
+    "아파트":     { icon: "🏢", bg: "#EFF6FF", text: "#1D4ED8", border: "#BFDBFE" },
+    "연립주택":   { icon: "🏘️", bg: "#F0FDF4", text: "#15803D", border: "#BBF7D0" },
+    "다세대주택":  { icon: "🏡", bg: "#DCFCE7", text: "#166534", border: "#86EFAC" },
+    "다가구주택":  { icon: "🏚️", bg: "#FFFBEB", text: "#854D0E", border: "#FEF08A" },
+    "단독주택":   { icon: "🏠", bg: "#FFF7ED", text: "#C2410C", border: "#FED7AA" },
+    "오피스텔":   { icon: "🏙️", bg: "#FAF5FF", text: "#7E22CE", border: "#E9D5FF" },
+    "주상복합":   { icon: "🏗️", bg: "#FFFBEB", text: "#92400E", border: "#FCD34D" },
+    "공동주택":   { icon: "🏢", bg: "#F0F9FF", text: "#0369A1", border: "#BAE6FD" },
+    "default":    { icon: "🏗️", bg: "#F9FAFB", text: "#374151", border: "#E5E7EB" },
   };
 
   let searchHistory = [];
 
   function getCfg(name) {
     if (!name) return TYPE_CFG.default;
+    if (TYPE_CFG[name]) return TYPE_CFG[name];
     for (const k of Object.keys(TYPE_CFG)) {
       if (k !== "default" && name.includes(k)) return TYPE_CFG[k];
     }
     return TYPE_CFG.default;
+  }
+
+  // 공동주택/단독주택 → 아파트/연립/다세대/다가구 세부 분류
+  function getDetailedType(bld) {
+    const mainNm   = bld.mainPurpsCdNm || "";
+    const etcPurps = bld.etcPurps      || "";
+    const bldNm    = bld.bldNm         || "";
+    const floors   = parseInt(bld.grndFlrCnt) || 0;
+    const totArea  = parseFloat(bld.totArea)  || 0;
+
+    // 1) etcPurps(기타용도) — 건축물대장의 가장 정확한 세부분류
+    const combined = etcPurps + " " + bldNm;
+    if (combined.includes("오피스텔"))  return "오피스텔";
+    if (combined.includes("주상복합"))  return "주상복합";
+    if (combined.includes("아파트"))    return "아파트";
+    if (combined.includes("연립"))      return "연립주택";
+    if (combined.includes("다세대"))    return "다세대주택";
+    if (combined.includes("다가구"))    return "다가구주택";
+
+    // 2) mainPurpsCdNm이 이미 세부명칭인 경우
+    if (mainNm !== "공동주택" && mainNm !== "단독주택" && mainNm !== "") {
+      return mainNm;
+    }
+
+    // 3) 공동주택: 건축법상 층수·연면적 기준
+    if (mainNm === "공동주택" || mainNm.includes("공동주택")) {
+      if (floors >= 5)       return "아파트";       // 5층↑ = 아파트
+      if (totArea > 660)     return "연립주택";     // 4층↓ + 660㎡↑ = 연립주택
+      if (floors > 0)        return "다세대주택";   // 4층↓ + 660㎡↓ = 다세대주택(빌라)
+      return "공동주택";
+    }
+
+    // 4) 단독주택 세부
+    if (mainNm === "단독주택" || mainNm.includes("단독")) {
+      return "단독주택";
+    }
+
+    return mainNm || "기타";
   }
 
   function fmt(n) { return (n != null && n !== "") ? Number(n).toLocaleString() : "-"; }
@@ -522,7 +563,8 @@
       return;
     }
 
-    const typeName = bld.mainPurpsCdNm || "-";
+    const typeName  = getDetailedType(bld);
+    const apiTypeName = bld.mainPurpsCdNm || "-";
     const cfg = getCfg(typeName);
     const grndFlr  = bld.grndFlrCnt;
     const ugrndFlr = bld.ugrndFlrCnt;
@@ -535,8 +577,9 @@
         <div class="result-main">
           <span style="font-size:52px">${cfg.icon}</span>
           <div>
-            <p class="result-label" style="color:${cfg.text}">주용도</p>
+            <p class="result-label" style="color:${cfg.text}">건물 유형</p>
             <h2 class="result-type" style="color:${cfg.text}">${typeName}</h2>
+            ${typeName !== apiTypeName ? `<p style="color:${cfg.text};opacity:0.6;font-size:11px;margin-top:2px">건축물대장: ${apiTypeName}${bld.etcPurps ? " / " + bld.etcPurps : ""}</p>` : ""}
             ${bld.bldNm ? `<p class="result-bldnm">${bld.bldNm}</p>` : ""}
           </div>
         </div>
@@ -579,7 +622,7 @@
     const list = document.getElementById("historyList");
     list.innerHTML = "";
     searchHistory.slice(1).forEach(h => {
-      const typeName = h.bld?.mainPurpsCdNm || "데이터 없음";
+      const typeName = h.bld ? getDetailedType(h.bld) : "데이터 없음";
       const cfg = getCfg(typeName);
       const item = document.createElement("div");
       item.className = "history-item";
