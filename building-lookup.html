@@ -188,7 +188,7 @@
   const BLD_KEY     = "ad95d7c3bb1ef219eb1449781d7025df1c65b7334b07ecde5fcf1076dcc2deb0";
   const JUSO_API    = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
   const JUSO_BD_API = "https://business.juso.go.kr/addrlink/addrBdInfoApi.do";
-  const BLD_API     = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrBasisOulnInfo";
+  const BLD_API = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrTitleInfo";
 
   const EXAMPLES = [
     "서울 강남구 테헤란로 521",
@@ -335,31 +335,28 @@
     // 각 시도를 독립 try-catch로 — 하나 실패해도 다음 시도 계속
     const altGbCd = params.platGbCd === "0" ? "1" : "0";
 
-    // 1) 3자리 siGunGu 코드 + bdMgtSn platGbCd + zero-padded bun/ji
+    // 1) 기본: sigunguCd + bjdongCd + platGbCd + zero-padded bun/ji
     if (!bld) try { bld = await fetchBld(params, BLD_API); } catch (e) { bldErr = e.message; }
+    
     // 2) 반대 platGbCd (0↔1)
     if (!bld) try {
       const p2 = { ...params, platGbCd: altGbCd };
       bld = await fetchBld(p2, BLD_API);
       if (bld) Object.assign(params, p2);
     } catch (e) { bldErr = e.message; }
-    // 3) 시도명/시군구명 (API 명세: siDo/siGunGu는 명칭 권장) + 원본 bun/ji
+    
+    // 3) 원본 bun/ji (0 패딩 제거)
     if (!bld) try {
-      const p3 = { ...params, siDo: params.siDoNm, siGunGu: params.siGunGuNm, bun: params.bunRaw, ji: params.jiRaw };
+      const p3 = { ...params, bun: params.bunRaw, ji: params.jiRaw };
       bld = await fetchBld(p3, BLD_API);
       if (bld) Object.assign(params, p3);
     } catch (e) { bldErr = e.message; }
-    // 4) 시도명/시군구명 + 반대 platGbCd
+    
+    // 4) 반대 platGbCd + 원본 bun/ji
     if (!bld) try {
-      const p4 = { ...params, siDo: params.siDoNm, siGunGu: params.siGunGuNm, platGbCd: altGbCd, bun: params.bunRaw, ji: params.jiRaw };
+      const p4 = { ...params, platGbCd: altGbCd, bun: params.bunRaw, ji: params.jiRaw };
       bld = await fetchBld(p4, BLD_API);
       if (bld) Object.assign(params, p4);
-    } catch (e) { bldErr = e.message; }
-    // 5) 5자리 siGunGu 코드 (시도코드+시군구코드)
-    if (!bld) try {
-      const p5 = { ...params, siGunGu: params.siGunGu5 };
-      bld = await fetchBld(p5, BLD_API);
-      if (bld) Object.assign(params, p5);
     } catch (e) { bldErr = e.message; }
 
     // juso 건물정보 API 폴백 (같은 JUSO_KEY, 같은 proxy)
@@ -398,25 +395,26 @@
 
   function extractParams(juso) {
     const bd = juso.bdMgtSn || "";
-    // bdMgtSn: 법정동코드(10)+산여부(1)+번(4)+지(4)+건물구분(1)+일련번호(5) = 25자리
-    // 또는 PNU만 19자리인 경우도 있음 → >= 19이면 파싱
     const hasBd = bd.length >= 19;
     const bunNum = parseInt(juso.lnbrMnnm || "0") || 0;
     const jiNum  = parseInt(juso.lnbrSlno  || "0") || 0;
-    const siDo2    = bd.slice(0, 2);
-    const siGunGu3 = bd.slice(2, 5);
-    // 주소명 파싱: jibunAddr 첫 두 단어 = 시도명, 시군구명 (API 명세는 명칭 입력 권장)
+
+    // Juso API의 admCd(10자리)를 5자리씩 분리하여 시군구코드/법정동코드로 사용
+    const admCd = juso.admCd || "";
+    const sigunguCd = admCd.length >= 10 ? admCd.slice(0, 5) : (hasBd ? bd.slice(0, 5) : "");
+    const bjdongCd = admCd.length >= 10 ? admCd.slice(5, 10) : (hasBd ? bd.slice(5, 10) : "");
+
     const addrParts = (juso.jibunAddr || juso.roadAddr || "").trim().split(/\s+/);
+    
     return {
-      siDo:      siDo2,
-      siGunGu:   siGunGu3,
-      siGunGu5:  siDo2 + siGunGu3,           // 5자리 코드 (시도코드+시군구코드)
-      siDoNm:    addrParts[0] || siDo2,       // 시도명 (예: 서울특별시)
-      siGunGuNm: addrParts[1] || siGunGu3,   // 시군구명 (예: 양천구)
+      sigunguCd: sigunguCd,  
+      bjdongCd:  bjdongCd,   
+      siDoNm:    addrParts[0] || "",
+      siGunGuNm: addrParts[1] || "",
       platGbCd:  hasBd ? bd[10] : (juso.mtYn || "0"),
       bun:       hasBd ? bd.slice(11, 15) : String(bunNum).padStart(4, "0"),
       ji:        hasBd ? bd.slice(15, 19) : String(jiNum).padStart(4, "0"),
-      bunRaw:    String(bunNum),              // zero-padding 없는 원본
+      bunRaw:    String(bunNum),
       jiRaw:     String(jiNum),
       bdNm:      juso.bdNm || "",
       roadAddr:  juso.roadAddr || "",
@@ -426,21 +424,23 @@
   }
 
   async function fetchBld(params, apiUrl = BLD_API) {
+    // 1. serviceKey는 URLSearchParams에서 제외 (이중 인코딩 방지)
     const p = new URLSearchParams({
-      serviceKey: BLD_KEY,
-      siDo:       params.siDo,
-      siGunGu:    params.siGunGu,
+      sigunguCd:  params.sigunguCd, 
+      bjdongCd:   params.bjdongCd,  
       platGbCd:   params.platGbCd,
+      bun:        params.bun,
+      ji:         params.ji,
       pageNo:     "1",
       numOfRows:  "10",
       _type:      "json",
     });
-    p.append("bun", params.bun);
-    p.append("ji",  params.ji);
 
-    const targetUrl = `${apiUrl}?${p}`;
+    // 2. targetUrl 조합 시 serviceKey를 직접 붙여줌
+    const targetUrl = `${apiUrl}?serviceKey=${BLD_KEY}&${p.toString()}`;
     params._fullUrl = targetUrl;
-    params._reqUrl = `siDo=${params.siDo}&siGunGu=${params.siGunGu}&platGbCd=${params.platGbCd}&bun=${params.bun}&ji=${params.ji}`;
+    params._reqUrl = p.toString();
+    
     const text = await proxyFetch(targetUrl);
     params._rawResp = text ? text.slice(0, 500) : "(empty)";
 
@@ -448,18 +448,24 @@
     try {
       data = JSON.parse(text);
     } catch (_) {
-      const msg = text.match(/returnAuthMsg[^>]*>([^<]+)<|errMsg[^>]*>([^<]+)</);
-      throw new Error(msg ? `API 인증 오류: ${msg[1] || msg[2]}` : `응답 파싱 오류: ${text.slice(0, 80)}`);
+      // JSON 파싱 실패 시 XML 에러 메시지 내용 추출
+      const authMsgMatch = text.match(/<returnAuthMsg>([^<]+)<\/returnAuthMsg>/);
+      const errMsgMatch = text.match(/<errMsg>([^<]+)<\/errMsg>/);
+      
+      if (authMsgMatch) throw new Error(`API 인증 오류: ${authMsgMatch[1]}`);
+      if (errMsgMatch) throw new Error(`API 서버 오류: ${errMsgMatch[1]}`);
+      
+      throw new Error(`응답 파싱 오류 (API가 XML을 반환함): ${text.slice(0, 80)}`);
     }
 
     if (!data || typeof data !== "object") {
       throw new Error(`빈 응답: ${JSON.stringify(data)}`);
     }
 
-    // API 응답 구조: {"header":{...},"body":{...}} — response 래퍼 없음
     const header = data?.header ?? data?.response?.header;
     const resultCode = header?.resultCode ?? data?.resultCode;
     const resultMsg  = header?.resultMsg  ?? data?.resultMsg ?? data?.message;
+    
     if (resultCode && resultCode !== "00") {
       throw new Error(`[${resultCode}] ${resultMsg || "API 오류"}`);
     }
@@ -498,8 +504,7 @@
             <summary style="color:#475569;font-size:11px;cursor:pointer;user-select:none">🔧 전송된 파라미터 확인</summary>
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;margin-top:6px;font-family:monospace;font-size:11px;color:#94A3B8;line-height:1.8">
               <div>bdMgtSn: <b style="color:#60A5FA">${params._bdMgtSn || "(없음)"}</b></div>
-              <div>시도: <b style="color:#F1F5F9">${params.siDo}</b>(코드) / <b style="color:#A78BFA">${params.siDoNm||""}</b>(명칭)</div>
-              <div>시군구: <b style="color:#F1F5F9">${params.siGunGu}</b>(3자리) / <b style="color:#F1F5F9">${params.siGunGu5||""}</b>(5자리) / <b style="color:#A78BFA">${params.siGunGuNm||""}</b>(명칭)</div>
+              <div>시군구코드: <b style="color:#F1F5F9">${params.sigunguCd}</b> | 법정동코드: <b style="color:#F1F5F9">${params.bjdongCd}</b></div>
               <div>platGbCd: <b style="color:#F1F5F9">${params.platGbCd}</b> | bun: <b style="color:#F1F5F9">${params.bun||"(없음)"}</b>/<b style="color:#F1F5F9">${params.bunRaw||""}</b>(raw) | ji: <b style="color:#F1F5F9">${params.ji}</b></div>
               <div>API totalCount: <b style="color:${tc === 0 || tc === '0' ? '#F87171' : '#22C55E'}">${tc ?? "-"}</b></div>
               ${safeUrl ? `<div style="margin-top:6px"><span style="color:#64748B">건축물대장 URL (새탭 직접 테스트):</span><br><a href="${safeUrl.replace(/&/g,'&amp;')}" target="_blank" style="color:#60A5FA;font-size:10px;word-break:break-all">${safeUrl.replace(/&/g,'&amp;').slice(0,200)}</a></div>` : ""}
