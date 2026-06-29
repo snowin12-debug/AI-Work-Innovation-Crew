@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>건물 유형 판별기 (테이블)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #F8FAFC;
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+      padding: 24px 16px 60px;
+      color: #1E293B;
+    }
+
+    .wrap { max-width: 900px; margin: 0 auto; }
+
+    .header { text-align: center; margin-bottom: 20px; }
+    .header h1 { font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 4px; letter-spacing: -0.5px; }
+    .header p { color: #64748B; font-size: 13px; }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #E2E8F0;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .input-row { display: flex; gap: 8px; align-items: flex-start; }
+    textarea {
+      flex: 1;
+      background: #F8FAFC;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px; padding: 10px 12px;
+      color: #1E293B; font-size: 14px; resize: none; outline: none;
+      line-height: 1.5; font-family: inherit;
+    }
+    textarea::placeholder { color: #94A3B8; }
+    textarea:focus { border-color: #3B82F6; background: #fff; }
+
+    .search-btn {
+      padding: 10px 18px; white-space: nowrap;
+      background: #3B82F6;
+      border: none; border-radius: 10px; color: #fff;
+      font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .search-btn:hover { background: #2563EB; }
+    .search-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #94A3B8; }
+
+    .error-msg { color: #EF4444; font-size: 12px; margin-top: 6px; min-height: 16px; }
+
+    .progress-wrap { margin-top: 8px; display: none; }
+    .progress-bar { display: flex; gap: 6px; }
+    .progress-step { flex: 1; height: 3px; border-radius: 2px; transition: background 0.3s; }
+    .progress-text { color: #64748B; font-size: 11px; text-align: center; margin-top: 4px; }
+
+    .examples-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .example-btn {
+      background: #F1F5F9; border: 1px solid #E2E8F0;
+      border-radius: 6px; padding: 4px 9px; color: #475569;
+      font-size: 11px; cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .example-btn:hover { background: #E2E8F0; color: #1E293B; }
+
+    /* 후보 목록 */
+    .candidates-title { color: #475569; font-size: 13px; margin-bottom: 10px; }
+    .candidate-btn {
+      width: 100%; background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 10px; padding: 10px 14px;
+      text-align: left; cursor: pointer; margin-bottom: 6px;
+      display: flex; flex-direction: column; gap: 2px;
+      font-family: inherit; transition: border-color 0.15s, background 0.15s;
+    }
+    .candidate-btn:hover { border-color: #3B82F6; background: #EFF6FF; }
+    .candidate-name { color: #1E293B; font-size: 13px; font-weight: 700; }
+    .candidate-road { color: #475569; font-size: 12px; }
+    .candidate-jibun { color: #94A3B8; font-size: 11px; }
+    .back-btn {
+      background: none; border: none; color: #94A3B8; font-size: 12px;
+      cursor: pointer; margin-top: 4px; font-family: inherit; padding: 4px 0;
+    }
+    .back-btn:hover { color: #475569; }
+
+    /* 결과 테이블 */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead tr { background: #F1F5F9; }
+    th {
+      padding: 10px 14px; text-align: left;
+      color: #64748B; font-size: 11px; font-weight: 700;
+      border-bottom: 2px solid #E2E8F0;
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #F1F5F9;
+      vertical-align: middle;
+    }
+    tbody tr:hover { background: #F8FAFC; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .type-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 6px; padding: 3px 8px;
+      font-size: 12px; font-weight: 700; white-space: nowrap;
+    }
+    .addr-cell { max-width: 280px; }
+    .addr-road { color: #1E293B; font-size: 12px; font-weight: 500; line-height: 1.4; }
+    .addr-jibun { color: #94A3B8; font-size: 11px; margin-top: 2px; }
+
+    .no-results {
+      text-align: center; padding: 40px 20px; color: #94A3B8; font-size: 14px;
+    }
+
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .result-count { color: #64748B; font-size: 12px; }
+    .copy-btn {
+      background: #F1F5F9; border: 1px solid #E2E8F0;
+      border-radius: 7px; padding: 5px 12px;
+      color: #475569; font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: #E2E8F0; }
+    .clear-btn {
+      background: none; border: 1px solid #FECACA;
+      border-radius: 7px; padding: 5px 12px;
+      color: #EF4444; font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .clear-btn:hover { background: #FEF2F2; }
+
+    .loading-row td { color: #94A3B8; font-style: italic; }
+    .error-row td { color: #EF4444; font-size: 12px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>🏘️ 건물 유형 판별기</h1>
+    <p>주소를 검색하면 아래 표에 한 줄씩 추가됩니다</p>
+  </div>
+
+  <div class="card">
+    <div class="input-row">
+      <textarea id="addressInput" rows="2"
+        placeholder="예) 서울 강남구 테헤란로 521&#10;또는 서울 강남구 대치동 176-1"></textarea>
+      <button class="search-btn" id="searchBtn" onclick="handleSearch()">🔍 검색</button>
+    </div>
+    <div id="errorMsg" class="error-msg"></div>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar">
+        <div class="progress-step" id="step1" style="background:#CBD5E1"></div>
+        <div class="progress-step" id="step2" style="background:#CBD5E1"></div>
+      </div>
+      <p class="progress-text" id="progressText"></p>
+    </div>
+    <div class="examples-wrap" id="examplesWrap"></div>
+  </div>
+
+  <div class="card" id="candidatesCard" style="display:none">
+    <p class="candidates-title" id="candidatesTitle"></p>
+    <div id="candidatesList"></div>
+    <button class="back-btn" onclick="hideCandidates()">← 다시 입력</button>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="toolbar">
+      <span class="result-count" id="resultCount"></span>
+      <div style="display:flex;gap:6px">
+        <button class="copy-btn" onclick="copyTsv()">📋 클립보드 복사 (엑셀용)</button>
+        <button class="clear-btn" onclick="clearResults()">🗑 초기화</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>주소</th>
+            <th>건물유형</th>
+            <th>사용승인일</th>
+            <th>지상층수</th>
+            <th>건물명</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const JUSO_KEY    = "U01TX0FVVEgyMDI2MDYyNTIyNDE0NTExOTUxMDE=";
+  const BLD_KEY     = "ad95d7c3bb1ef219eb1449781d7025df1c65b7334b07ecde5fcf1076dcc2deb0";
+  const JUSO_API    = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
+  const JUSO_BD_API = "https://business.juso.go.kr/addrlink/addrBdInfoApi.do";
+  const BLD_API     = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrTitleInfo";
+
+  const EXAMPLES = [
+    "서울 강남구 테헤란로 521",
+    "서울 서초구 반포대로 201",
+    "서울 강남구 대치동 176-1",
+    "부산 해운대구 우동 1408",
+    "경기 성남시 분당구 정자동 15-1",
+  ];
+
+  const TYPE_CFG = {
+    "아파트":    { bg: "#EFF6FF", text: "#1D4ED8" },
+    "연립주택":  { bg: "#F0FDF4", text: "#15803D" },
+    "다세대주택":{ bg: "#DCFCE7", text: "#166534" },
+    "다가구주택":{ bg: "#FFFBEB", text: "#854D0E" },
+    "단독주택":  { bg: "#FFF7ED", text: "#C2410C" },
+    "오피스텔":  { bg: "#FAF5FF", text: "#7E22CE" },
+    "주상복합":  { bg: "#FFFBEB", text: "#92400E" },
+    "공동주택":  { bg: "#EFF6FF", text: "#0369A1" },
+    "default":   { bg: "#F1F5F9", text: "#475569" },
+  };
+
+  let results = [];
+  let rowCounter = 0;
+
+  function getCfg(name) {
+    if (!name) return TYPE_CFG.default;
+    if (TYPE_CFG[name]) return TYPE_CFG[name];
+    for (const k of Object.keys(TYPE_CFG)) {
+      if (k !== "default" && name.includes(k)) return TYPE_CFG[k];
+    }
+    return TYPE_CFG.default;
+  }
+
+  function getDetailedType(bld) {
+    const mainNm   = bld.mainPurpsCdNm || "";
+    const etcPurps = (bld.etcPurps || "").trim();
+    const bldNm    = bld.bldNm || "";
+    const floors   = parseInt(bld.grndFlrCnt) || 0;
+    const totArea  = parseFloat(bld.totArea)  || 0;
+
+    if (etcPurps) return etcPurps;
+    if (bldNm.includes("오피스텔")) return "오피스텔";
+    if (bldNm.includes("주상복합")) return "주상복합";
+    if (bldNm.includes("아파트"))   return "아파트";
+    if (mainNm !== "공동주택" && mainNm !== "단독주택" && mainNm !== "") return mainNm;
+    if (mainNm.includes("공동주택")) {
+      if (floors >= 5)   return "아파트";
+      if (totArea > 660) return "연립주택";
+      if (floors > 0)    return "다세대주택";
+      return "공동주택";
+    }
+    if (mainNm.includes("단독")) return "단독주택";
+    return mainNm || "기타";
+  }
+
+  function fmtDate(d) {
+    if (!d) return "-";
+    const s = String(d).replace(/\D/g, "");
+    if (s.length >= 8) return `${s.slice(0,4)}.${s.slice(4,6)}.${s.slice(6,8)}`;
+    return s;
+  }
+
+  (function init() {
+    const wrap = document.getElementById("examplesWrap");
+    EXAMPLES.forEach(ex => {
+      const btn = document.createElement("button");
+      btn.className = "example-btn";
+      btn.textContent = ex.length > 22 ? ex.slice(0, 22) + "…" : ex;
+      btn.onclick = () => { document.getElementById("addressInput").value = ex; };
+      wrap.appendChild(btn);
+    });
+    document.getElementById("addressInput").addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); }
+    });
+  })();
+
+  function setBtn(disabled) { document.getElementById("searchBtn").disabled = disabled; }
+  function showError(msg) { document.getElementById("errorMsg").textContent = msg; setProgress(false); }
+
+  function setProgress(stepNum, text) {
+    const wrap = document.getElementById("progressWrap");
+    if (!stepNum) { wrap.style.display = "none"; return; }
+    wrap.style.display = "block";
+    document.getElementById("step1").style.background = stepNum >= 1 ? "#3B82F6" : "#CBD5E1";
+    document.getElementById("step2").style.background = stepNum >= 2 ? "#6366F1" : "#CBD5E1";
+    document.getElementById("progressText").textContent = text || "";
+  }
+
+  function hideCandidates() {
+    document.getElementById("candidatesCard").style.display = "none";
+    document.getElementById("errorMsg").textContent = "";
+    setProgress(false);
+  }
+
+  async function handleSearch() {
+    const address = document.getElementById("addressInput").value.trim();
+    if (!address) return;
+    document.getElementById("errorMsg").textContent = "";
+    document.getElementById("candidatesCard").style.display = "none";
+    setBtn(true);
+    setProgress(1, "1/2 주소 검색 중...");
+    try {
+      const list = await searchJuso(address);
+      if (!list.length) { showError("주소를 찾을 수 없습니다."); return; }
+      if (list.length === 1) {
+        await addRow(list[0]);
+      } else {
+        showCandidates(list);
+      }
+    } catch (e) {
+      showError("주소 검색 오류: " + e.message);
+    } finally {
+      setBtn(false);
+      setProgress(false);
+    }
+  }
+
+  async function proxyFetch(url) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return await r.text();
+    } catch (_) {}
+    const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+    if (!r.ok) throw new Error(`Proxy HTTP ${r.status}`);
+    return await r.text();
+  }
+
+  async function searchJuso(keyword) {
+    const p = new URLSearchParams({ confmKey: JUSO_KEY, currentPage: "1", countPerPage: "10", keyword, resultType: "json" });
+    const text = await proxyFetch(`${JUSO_API}?${p}`);
+    const data = JSON.parse(text);
+    const common = data?.results?.common;
+    if (common?.errorCode !== "0") throw new Error(common?.errorMessage || "주소 검색 오류");
+    return data?.results?.juso || [];
+  }
+
+  function showCandidates(list) {
+    setProgress(false);
+    document.getElementById("candidatesTitle").textContent = `📍 ${list.length}개 주소가 검색됐습니다. 선택하세요`;
+    const ul = document.getElementById("candidatesList");
+    ul.innerHTML = "";
+    list.forEach(j => {
+      const btn = document.createElement("button");
+      btn.className = "candidate-btn";
+      btn.innerHTML = `
+        ${j.bdNm ? `<span class="candidate-name">🏢 ${j.bdNm}</span>` : ""}
+        <span class="candidate-road">${j.roadAddr}</span>
+        <span class="candidate-jibun">지번: ${j.jibunAddr}</span>
+      `;
+      btn.onclick = async () => {
+        document.getElementById("candidatesCard").style.display = "none";
+        setBtn(true);
+        setProgress(2, "2/2 건축물대장 조회 중...");
+        try { await addRow(j); } finally { setBtn(false); setProgress(false); }
+      };
+      ul.appendChild(btn);
+    });
+    document.getElementById("candidatesCard").style.display = "block";
+  }
+
+  function extractParams(juso) {
+    const bd = juso.bdMgtSn || "";
+    const hasBd = bd.length >= 19;
+    const bunNum = parseInt(juso.lnbrMnnm || "0") || 0;
+    const jiNum  = parseInt(juso.lnbrSlno  || "0") || 0;
+    const admCd  = juso.admCd || "";
+    const sigunguCd = admCd.length >= 10 ? admCd.slice(0, 5) : (hasBd ? bd.slice(0, 5) : "");
+    const bjdongCd  = admCd.length >= 10 ? admCd.slice(5, 10) : (hasBd ? bd.slice(5, 10) : "");
+    return {
+      sigunguCd, bjdongCd,
+      platGbCd: hasBd ? bd[10] : (juso.mtYn || "0"),
+      bun:  hasBd ? bd.slice(11, 15) : String(bunNum).padStart(4, "0"),
+      ji:   hasBd ? bd.slice(15, 19) : String(jiNum).padStart(4, "0"),
+      bunRaw: String(bunNum), jiRaw: String(jiNum),
+      bdNm: juso.bdNm || "", roadAddr: juso.roadAddr || "", jibunAddr: juso.jibunAddr || "",
+    };
+  }
+
+  async function fetchBld(params) {
+    const p = new URLSearchParams({
+      sigunguCd: params.sigunguCd, bjdongCd: params.bjdongCd,
+      platGbCd: params.platGbCd, bun: params.bun, ji: params.ji,
+      pageNo: "1", numOfRows: "10", _type: "json",
+    });
+    const text = await proxyFetch(`${BLD_API}?serviceKey=${BLD_KEY}&${p}`);
+    let data;
+    try { data = JSON.parse(text); } catch (_) { return null; }
+    const body = data?.body ?? data?.response?.body;
+    const items = body?.items?.item;
+    if (!items) return null;
+    return Array.isArray(items) ? items[0] : items;
+  }
+
+  async function loadBuilding(juso) {
+    const params = extractParams(juso);
+    const altGb  = params.platGbCd === "0" ? "1" : "0";
+    let bld = null;
+    const tries = [
+      params,
+      { ...params, platGbCd: altGb },
+      { ...params, bun: params.bunRaw, ji: params.jiRaw },
+      { ...params, platGbCd: altGb, bun: params.bunRaw, ji: params.jiRaw },
+    ];
+    for (const p of tries) {
+      if (bld) break;
+      try { bld = await fetchBld(p); } catch (_) {}
+    }
+    return bld;
+  }
+
+  async function addRow(juso) {
+    setProgress(2, "2/2 건축물대장 조회 중...");
+    rowCounter++;
+    const rowId = `row-${rowCounter}`;
+    const addr = document.getElementById("addressInput").value.trim();
+
+    const tbody = document.getElementById("resultBody");
+    const loadingTr = document.createElement("tr");
+    loadingTr.id = rowId;
+    loadingTr.className = "loading-row";
+    loadingTr.innerHTML = `<td>${rowCounter}</td><td colspan="5">⏳ 조회 중... ${juso.roadAddr}</td>`;
+    tbody.appendChild(loadingTr);
+    document.getElementById("resultCard").style.display = "block";
+
+    try {
+      const bld = await loadBuilding(juso);
+
+      const typeName     = bld ? getDetailedType(bld) : "조회 실패";
+      const approvalDate = bld ? fmtDate(bld.useAprDay) : "-";
+      const floors       = bld && bld.grndFlrCnt != null && bld.grndFlrCnt !== "" ? bld.grndFlrCnt + "층" : "-";
+      const bldNm        = bld?.bldNm || juso.bdNm || "-";
+      const cfg          = getCfg(typeName);
+
+      results.push({
+        seq: rowCounter, addr, roadAddr: juso.roadAddr, jibunAddr: juso.jibunAddr,
+        typeName, approvalDate, floors, bldNm,
+      });
+
+      const tr = document.getElementById(rowId);
+      if (tr) {
+        tr.className = bld ? "" : "error-row";
+        tr.innerHTML = `
+          <td style="color:#94A3B8;font-size:11px">${rowCounter}</td>
+          <td class="addr-cell">
+            <p class="addr-road">${juso.roadAddr}</p>
+            <p class="addr-jibun">${juso.jibunAddr}</p>
+          </td>
+          <td>
+            <span class="type-badge" style="background:${cfg.bg};color:${cfg.text}">${typeName}</span>
+          </td>
+          <td style="color:#374151;font-weight:600">${approvalDate}</td>
+          <td style="color:#374151;font-weight:600">${floors}</td>
+          <td style="color:#64748B;font-size:12px">${bldNm}</td>
+        `;
+      }
+    } catch (e) {
+      const tr = document.getElementById(rowId);
+      if (tr) {
+        tr.className = "error-row";
+        tr.innerHTML = `<td>${rowCounter}</td><td>${juso.roadAddr}</td><td colspan="4">오류: ${e.message}</td>`;
+      }
+    }
+
+    updateCount();
+  }
+
+  function updateCount() {
+    document.getElementById("resultCount").textContent = `총 ${results.length}건`;
+  }
+
+  function clearResults() {
+    results = [];
+    rowCounter = 0;
+    document.getElementById("resultBody").innerHTML = "";
+    document.getElementById("resultCard").style.display = "none";
+  }
+
+  function copyTsv() {
+    if (!results.length) return;
+    const header = ["#", "도로명주소", "지번주소", "건물유형", "사용승인일", "지상층수", "건물명"].join("\t");
+    const rows = results.map(r =>
+      [r.seq, r.roadAddr, r.jibunAddr, r.typeName, r.approvalDate, r.floors, r.bldNm].join("\t")
+    );
+    const tsv = [header, ...rows].join("\n");
+    navigator.clipboard.writeText(tsv).then(() => {
+      const btn = document.querySelector(".copy-btn");
+      const orig = btn.textContent;
+      btn.textContent = "✅ 복사됨!";
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    });
+  }
+</script>
+</body>
+</html>
